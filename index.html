@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Cabinet Stoica</title>
+  <meta name="description" content="Gestiunea activității cabinetului de avocatură: sarcini, dosare, calendar, acte, contabilitate.">
+  <meta name="theme-color" content="#7a1f2b">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <img src="icon.svg" alt="" width="34" height="34">
+        <div>
+          <strong>Cabinet de avocat</strong>
+          <span id="brandName">Stoica Ioana</span>
+        </div>
+      </div>
+      <div class="side-mail">
+        <a href="https://mail.google.com" target="_blank" rel="noopener" class="gmail">Gmail ↗</a>
+        <a href="https://mail.yahoo.com" target="_blank" rel="noopener" class="yahoo">Yahoo Mail ↗</a>
+      </div>
+      <nav id="nav"></nav>
+      <div class="sidebar-foot" id="sidebarFoot"></div>
+    </aside>
+    <div class="scrim" id="scrim" data-act="toggleMenu"></div>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="icon-btn menu-btn" data-act="toggleMenu" aria-label="Meniu">
+          <svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
+        <h1 id="pageTitle">Acasă</h1>
+        <form class="search" data-form="search" role="search">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input name="q" type="search" placeholder="Caută sarcini, dosare, clienți, acte…" aria-label="Caută">
+        </form>
+        <button class="btn primary add-btn" data-act="newTask">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>Sarcină</span>
+        </button>
+      </header>
+      <main id="view" class="view"></main>
+    </div>
+  </div>
+
+  <dialog id="modal"></dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <input type="file" id="restoreInput" accept="application/json,.json" hidden>
+
+  <script src="db.js"></script>
+  <script src="sign.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

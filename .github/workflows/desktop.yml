@@ -1,0 +1,47 @@
+name: Aplicație desktop
+
+# Pornire manuală din fila Actions (butonul „Run workflow”) sau la o etichetă v*.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: --win
+            files: |
+              dist/*.exe
+          - os: macos-latest
+            target: --mac
+            files: |
+              dist/*.dmg
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Construiește aplicația
+        run: npx electron-builder ${{ matrix.target }} --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Cabinet-Stoica-${{ runner.os }}
+          path: ${{ matrix.files }}
+          if-no-files-found: error
+      - name: Publică versiunea (doar pentru etichete v*)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ matrix.files }}
