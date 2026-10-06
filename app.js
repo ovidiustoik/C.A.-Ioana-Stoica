@@ -1118,6 +1118,7 @@ function viewSettings() {
         <h2>Copie de siguranță</h2>
         <p class="small">Toate datele (inclusiv fișierele încărcate) sunt păstrate <b>doar în acest browser, pe acest dispozitiv</b>. Nu sunt trimise nicăieri. Dacă ștergeți datele browserului sau schimbați dispozitivul, le pierdeți – de aceea descărcați periodic un backup și păstrați-l într-un loc sigur (ex. stick criptat).</p>
         <p class="small">Ultimul backup: <b>${lastBackup ? fmtDate(lastBackup) : 'niciodată'}</b></p>
+        ${window.desktop?.backup ? `<p class="small">Copia automată zilnică se salvează în <b>Documente\\Cabinet Stoica\\backup</b> (se păstrează ultimele 30).${setting('autoBackupFile') ? `<br><span class="muted">Ultima: ${h(setting('autoBackupFile'))}</span>` : ''}</p>` : ''}
         <div class="actions"><button class="btn primary" data-act="backup">Descarcă backup</button><button class="btn" data-act="restore">Restaurează din backup…</button></div>
         <p class="small muted" id="storageInfo"></p>
       </div>
@@ -1388,18 +1389,34 @@ function exportCsv() {
 
 const blobToDataUrl = b => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsDataURL(b); });
 
-async function backup() {
-  toast('Se pregătește backup-ul…');
+async function backupJson() {
   const data = { app: 'cabinet-stoica', version: 1, exportedAt: new Date().toISOString(), stores: {} };
   for (const s of STORES) {
     if (s === 'files') {
       const files = await DB.all('files');
       data.stores.files = await Promise.all(files.map(async f => ({ id: f.id, data: await blobToDataUrl(f.blob) })));
-    } else data.stores[s] = S[s].filter(x => s !== 'settings' || x.id !== 'lastBackup');
+    } else data.stores[s] = S[s].filter(x => s !== 'settings' || !['lastBackup', 'autoBackupDay'].includes(x.id));
   }
-  download(`backup-cabinet-${today()}.json`, JSON.stringify(data), 'application/json');
+  return JSON.stringify(data);
+}
+
+async function backup() {
+  toast('Se pregătește backup-ul…');
+  download(`backup-cabinet-${today()}.json`, await backupJson(), 'application/json');
   await setSetting('lastBackup', today());
   rerender();
+}
+
+// Pornită cu Porneste.cmd: o copie pe zi se salvează singură în Documente\Cabinet Stoica\backup.
+async function autoBackup() {
+  if (!window.desktop?.backup || setting('autoBackupDay', '') === today()) return;
+  try {
+    const f = await window.desktop.backup(await backupJson());
+    await setSetting('autoBackupDay', today());
+    await setSetting('lastBackup', today());
+    await setSetting('autoBackupFile', f);
+    rerender();
+  } catch (err) { console.warn('Copia automată nu a reușit:', err); }
 }
 
 async function restore(file) {
@@ -1504,6 +1521,7 @@ window.addEventListener('hashchange', () => {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   }
   route();
+  setTimeout(autoBackup, 2500);
   // O dată pe zi, dosarele în lucru se actualizează singure de pe portal (doar în aplicația desktop)
   if (portalAvailable() && setting('portalAuto', true) && setting('portalLastSync', '') !== today()) {
     setTimeout(() => portalSyncAll({ quiet: true }), 4000);

@@ -1,2 +1,8 @@
+# Datele și copiile de siguranță nu se urcă niciodată pe GitHub
+Cabinet Stoica/
+*.json.bak
+backup-cabinet-*.json
+cabinet-*.json
+
 node_modules/
 dist/

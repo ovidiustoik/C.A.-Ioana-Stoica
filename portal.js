@@ -112,7 +112,17 @@ async function applyPortal(c, p) {
   return stats;
 }
 
-async function syncCase(c, { interactive = true } = {}) {
+// Actualizările rulează strict una după alta (cea automată de la pornire și cele cerute de mână
+// nu au voie să se suprapună, altfel termenele s-ar adăuga de două ori).
+let _portalQueue = Promise.resolve();
+function syncCase(c, opts = {}) {
+  const run = () => syncCaseNow({ ...(c.id && byId('cases', c.id) || c) }, opts);
+  const r = _portalQueue.then(run, run);
+  _portalQueue = r.catch(() => {});
+  return r;
+}
+
+async function syncCaseNow(c, { interactive = true } = {}) {
   if (!c.number || !RE_NR_DOSAR.test(c.number.trim())) throw new Error('Numărul dosarului lipsește sau nu are formatul 1234/211/2026.');
   const res = await portalSearch(c.number.trim());
   if (!res.length) throw new Error(`Dosarul ${c.number} nu a fost găsit pe portal.`);

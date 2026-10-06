@@ -30,36 +30,35 @@ Aplicație web pentru organizarea activității cabinetului. Rulează în browse
 - **Portal.just.ro** se interoghează prin serviciul public `portalquery.just.ro`, doar din aplicația desktop (din browser serviciul nu poate fi apelat). Datele afișate sunt cele publicate pe portal; pentru acte procedurale verificați întotdeauna și sursa oficială.
 - **Semnătura electronică** din aplicație este o imagine a semnăturii olografe aplicată pe PDF, adică o **semnătură electronică simplă** (Regulamentul eIDAS nr. 910/2014). Nu înlocuiește **semnătura electronică calificată**, singura cu efect echivalent semnăturii olografe (art. 25 alin. (2) eIDAS). Documentele Word se salvează mai întâi ca PDF. Dacă un PDF are deja o semnătură digitală, copia nouă o invalidează; aplicația avertizează în acest caz.
 
-## Aplicația desktop (Windows / Mac)
+## Instalare pe calculator (la fel ca My Rejust)
 
-Aplicația desktop are iconița cu doamna Justiției (cu ochii deschiși), fereastră proprie și scurtătură pe Desktop. Actele se deschid direct cu Word sau Acrobat, iar linkurile externe se deschid în browserul obișnuit.
+1. În **GitHub Desktop**: *File → Clone repository* → `ovidiustoik/C.A.-Ioana-Stoica` → *Clone*.
+2. Deschideți folderul (*Repository → Show in Explorer*) și dați dublu-clic pe **`Porneste.cmd`**.
+   - Se deschide o fereastră neagră (programul local) și aplicația, într-o fereastră proprie (Edge sau Chrome).
+   - La prima pornire apare pe **Desktop** iconița **„Cabinet Stoica”** (doamna Justiției). De atunci porniți de acolo.
+3. Fereastra neagră trebuie să rămână deschisă cât lucrați (o puteți minimiza). Închiderea ei oprește aplicația.
 
-**Actualizare automată:** aplicația desktop încarcă programul de la adresa publicată pe GitHub Pages, **https://ovidiustoik.github.io/C.A.-Ioana-Stoica/**. Orice modificare adusă în ramura `main` ajunge singură la următoarea pornire (sau la *Vizualizare → Reîncarcă*), fără descărcări noi. Fără internet, aplicația folosește ultima versiune păstrată pe calculator. Doar prima pornire are nevoie de internet.
+**Actualizare:** în GitHub Desktop, *Fetch origin* → *Pull origin*. La următoarea pornire de pe iconiță, versiunea veche se oprește singură și pornește cea nouă.
 
-**Datele** (sarcini, dosare, acte, semnătura) rămân **numai pe calculator**, în profilul aplicației; pe GitHub se află doar codul programului.
+**Ce face programul local (`server.ps1`, port 8766):** servește aplicația, face legătura cu **portal.just.ro** (preluarea dosarelor, termenelor și soluțiilor), deschide actele cu Word/Acrobat și salvează zilnic o **copie de siguranță** în `Documente\Cabinet Stoica\backup` (ultimele 30). Copiile de siguranță nu stau niciodată în folderul legat de GitHub.
 
-Fișierul `.exe` trebuie descărcat din nou doar dacă se schimbă partea de „ramă” (folderul `electron/`), ceea ce se întâmplă rar.
+**Datele** (sarcini, dosare, acte, semnătura) rămân **numai pe calculator**. Pe GitHub se află doar codul programului. My Rejust (portul 8765) și Cabinet Stoica (portul 8766) pot rula în același timp.
 
-Aplicația nu este semnată cu un certificat de dezvoltator (costă anual), de aceea la prima pornire:
-- **Windows** afișează „Windows a protejat PC-ul”: apăsați *Mai multe informații* → *Executare oricum*.
-- **macOS** refuză deschiderea: clic dreapta pe aplicație → *Deschidere* → *Deschidere*. Dacă apare mesajul că aplicația „este deteriorată”, rulați în Terminal `xattr -cr "/Applications/Cabinet Stoica.app"`.
+### Variante alternative
 
-Construire: `npm install`, apoi `npm run dist:win -- portable` (sau `npm run dist:mac`). Pentru testare cu altă adresă: variabila de mediu `CABINET_URL`.
+- **Online / telefon:** https://ovidiustoik.github.io/C.A.-Ioana-Stoica/ (fără legătura cu portalul și fără copia automată pe disc; pe telefon: „Adaugă pe ecranul principal”).
+- **Aplicația Electron** (`electron/`, fișierul `.exe`): încarcă versiunea publicată online și are aceleași funcții ca programul local. Construire: `npm install`, apoi `npm run dist:win -- portable`.
 
-**Atenție:** datele din aplicația desktop și cele din browser sunt separate. Le mutați cu *Setări → Descarcă backup / Restaurează din backup*.
-
-## Pornire (versiunea din browser)
-
-- **Online:** https://ovidiustoik.github.io/C.A.-Ioana-Stoica/ (pe telefon: din meniul browserului, „Adaugă pe ecranul principal”).
-- **Local:** în folderul proiectului rulați `python3 -m http.server 8000`, apoi accesați `http://localhost:8000`.
+Fiecare variantă își păstrează datele separat (sunt „browsere” diferite). Le mutați cu *Setări → Descarcă backup / Restaurează din backup*.
 
 ## Structură
 
-- `index.html`: structura paginii
-- `style.css`: aspectul (temă luminoasă/întunecată, adaptat pentru telefon)
+- `Porneste.cmd`, `server.ps1`: pornirea pe calculator și programul local
+- `index.html`, `style.css`: pagina și aspectul
+- `local.js`: legătura paginii cu programul local
 - `db.js`: stocarea locală (IndexedDB)
 - `app.js`: logica aplicației
-- `portal.js`: legătura cu portal.just.ro;
+- `portal.js`: legătura cu portal.just.ro
 - `sign.js`: semnătura electronică; `vendor/` conține pdf-lib (MIT) și PDF.js (Apache-2.0)
-- `electron/`: aplicația desktop (ramă care încarcă versiunea publicată; `offline.html` la prima pornire fără internet); `build/`: iconițele (doamna Justiției)
-- `sw.js`, `manifest.webmanifest`, `icon.svg`: funcționare offline și instalare ca aplicație
+- `sw.js`, `manifest.webmanifest`, iconițele: funcționare offline și instalare pe telefon
+- `electron/`, `build/`: varianta Electron și iconițele (doamna Justiției)
