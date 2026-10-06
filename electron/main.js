@@ -1,6 +1,6 @@
 'use strict';
 /* Aplicația desktop: o fereastră proprie care încarcă aplicația publicată pe GitHub Pages. */
-const { app, BrowserWindow, Menu, shell, ipcMain } = require('electron');
+const { app, BrowserWindow, Menu, shell, ipcMain, net } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -64,6 +64,24 @@ function createWindow() {
   win.webContents.session.setSpellCheckerLanguages(['ro', 'en-US']);
   win.on('closed', () => { win = null; });
 }
+
+// Serviciul public de interogare al portalului instanțelor (portal.just.ro). Merge doar prin http
+// și nu acceptă cereri din browser, de aceea cererea pleacă din aplicația desktop.
+const PORTAL_URL = process.env.CABINET_PORTAL_URL || 'http://portalquery.just.ro/query.asmx';
+const PORTAL_OPS = ['CautareDosare', 'CautareDosare2', 'CautareSedinte'];
+ipcMain.handle('portal-soap', async (e, op, body) => {
+  if (!isApp(e.senderFrame?.url || '')) throw new Error('Cerere respinsă.');
+  if (!PORTAL_OPS.includes(op) || typeof body !== 'string' || body.length > 20000) throw new Error('Operațiune nepermisă.');
+  const r = await net.fetch(PORTAL_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/xml; charset=utf-8', SOAPAction: `"portalquery.just.ro/${op}"` },
+    body,
+    signal: AbortSignal.timeout(30000),
+  });
+  const text = await r.text();
+  if (!r.ok) throw new Error(`Portalul a răspuns cu eroarea ${r.status}.`);
+  return text;
+});
 
 ipcMain.handle('open-file', async (e, name, data) => {
   if (!isApp(e.senderFrame?.url || '')) throw new Error('Cerere respinsă.');

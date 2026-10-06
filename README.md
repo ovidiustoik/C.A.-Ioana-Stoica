@@ -9,6 +9,7 @@ Aplicație web pentru organizarea activității cabinetului. Rulează în browse
 | **Acasă – 7 zile** | Gmail și Yahoo Mail (Ymail) în prim-plan (și în bara laterală). TO DO pe următoarele 7 zile, grupat pe zile, cu bife, urgență și notă direct lângă fiecare sarcină. Sus apar restanțele. În lateral: termene în instanță (14 zile), obligații ANAF, acte care expiră, acces rapid. |
 | **TO DO** | Toate sarcinile, cu filtre după stare, urgență (Critică / Ridicată / Normală / Scăzută) și dosar. |
 | **Dosare în lucru** | Număr, instanță, client, calitate, parte adversă, stadiu, complet, onorariu, note. Fiecare dosar are propriile termene, sarcini, acte și încasări. |
+| **Legătura cu portal.just.ro** | În aplicația desktop: „＋ Din portal.just.ro” creează un dosar după număr; „⟳ Actualizează de pe portal” preia instanța, obiectul, stadiul, completul, părțile, termenele și soluțiile. Zilnic, la prima pornire, dosarele în lucru se actualizează singure; termenele noi intră în calendar, iar fiecare soluție nouă devine o sarcină în TO DO. Notele scrise de mână nu sunt modificate. |
 | **Calendar** | Vedere lunară cu termene, întâlniri, obligații ANAF, sarcini și expirări de acte. Zilele nelucrătoare sunt marcate. Export `.ics` pentru Google Calendar / Outlook / telefon. |
 | **Clienți** | Date de contact și dosarele fiecărui client. |
 | **Acte clienți** | Actele încărcate, grupate pe fiecare dosar și pe categorii. |
@@ -26,6 +27,7 @@ Aplicație web pentru organizarea activității cabinetului. Rulează în browse
 - **Datele stau doar în browserul de pe dispozitivul folosit.** Nu se sincronizează între telefon și calculator. Pentru mutare sau siguranță folosiți *Setări → Descarcă backup*, iar pe celălalt dispozitiv *Restaurează din backup*. Backup-ul conține și fișierele, deci trebuie păstrat în siguranță (secret profesional, GDPR).
 - Nu folosiți aplicația în modul privat/incognito, pentru că datele se pierd la închidere.
 
+- **Portal.just.ro** se interoghează prin serviciul public `portalquery.just.ro`, doar din aplicația desktop (din browser serviciul nu poate fi apelat). Datele afișate sunt cele publicate pe portal; pentru acte procedurale verificați întotdeauna și sursa oficială.
 - **Semnătura electronică** din aplicație este o imagine a semnăturii olografe aplicată pe PDF, adică o **semnătură electronică simplă** (Regulamentul eIDAS nr. 910/2014). Nu înlocuiește **semnătura electronică calificată**, singura cu efect echivalent semnăturii olografe (art. 25 alin. (2) eIDAS). Documentele Word se salvează mai întâi ca PDF. Dacă un PDF are deja o semnătură digitală, copia nouă o invalidează; aplicația avertizează în acest caz.
 
 ## Aplicația desktop (Windows / Mac)
@@ -57,6 +59,7 @@ Construire: `npm install`, apoi `npm run dist:win -- portable` (sau `npm run dis
 - `style.css`: aspectul (temă luminoasă/întunecată, adaptat pentru telefon)
 - `db.js`: stocarea locală (IndexedDB)
 - `app.js`: logica aplicației
+- `portal.js`: legătura cu portal.just.ro;
 - `sign.js`: semnătura electronică; `vendor/` conține pdf-lib (MIT) și PDF.js (Apache-2.0)
 - `electron/`: aplicația desktop (ramă care încarcă versiunea publicată; `offline.html` la prima pornire fără internet); `build/`: iconițele (doamna Justiției)
 - `sw.js`, `manifest.webmanifest`, `icon.svg`: funcționare offline și instalare ca aplicație

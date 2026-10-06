@@ -773,6 +773,8 @@ function viewCases() {
     <select data-filter="cf.status"><option value="">Toate</option>${Object.entries(CASE_STATUS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select>
     <input data-filter="cf.q" type="search" placeholder="Număr, client, obiect, instanță…" value="${h(f.q)}">
     <span class="spacer"></span>
+    <button class="btn" data-act="portalSyncAll" title="Preia termenele și soluțiile tuturor dosarelor în lucru">⟳ Actualizează de pe portal</button>
+    <button class="btn" data-act="portalNewCase">＋ Din portal.just.ro</button>
     <button class="btn primary" data-act="newCase">＋ Dosar nou</button>
   </div>
   <div class="card table-wrap">
@@ -835,9 +837,10 @@ function viewCase(id) {
       </div>
     </div>
     <div>
+      ${portalCard(c)}
       <div class="card">
         <div class="card-head"><h2>Termene și evenimente</h2></div>
-        ${events.length ? `<ul class="list">${events.map(e => `<li><span class="dot ${e.type}"></span><div class="grow"><a href="#" data-act="editEvent" data-id="${e.id}">${h(e.title)}</a><span class="muted small">${fmtDate(e.date, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}${e.time ? ', ' + h(e.time) : ''}${e.date < today() ? ' · trecut' : ''}</span>${e.note ? `<span class="small">${h(e.note)}</span>` : ''}</div></li>`).join('')}</ul>` : empty('Niciun termen.')}
+        ${events.length ? `<ul class="list">${events.map(e => `<li><span class="dot ${e.type}"></span><div class="grow"><a href="#" data-act="editEvent" data-id="${e.id}">${h(e.title)}</a><span class="muted small">${fmtDate(e.date, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}${e.time ? ', ' + h(e.time) : ''}${e.date < today() ? ' · trecut' : ''}${e.portal ? ' · portal' : ''}</span>${e.note ? `<span class="small">${h(e.note)}</span>` : ''}${e.portalNote ? `<span class="small muted" style="white-space:pre-line">${h(e.portalNote)}</span>` : ''}</div></li>`).join('')}</ul>` : empty('Niciun termen.')}
       </div>
       <div class="card">
         <div class="card-head"><h2>Încasări pe dosar</h2></div>
@@ -1103,6 +1106,7 @@ function viewSettings() {
           <label class="field"><span>Nume afișat</span><input name="name" value="${h(setting('name', 'Ioana Stoica'))}"></label>
           <label class="field"><span>Nume folosit în salut</span><input name="greetName" value="${h(setting('greetName', 'Ioana'))}"></label>
           <label class="field"><span>Adresa butonului „SPV ANAF”</span><input name="spvUrl" type="url" value="${h(setting('spvUrl', 'https://www.anaf.ro'))}"><small>Lipiți aici adresa exactă a paginii de autentificare SPV pe care o folosiți.</small></label>
+          <label class="field check"><input type="checkbox" name="portalAuto" ${setting('portalAuto', true) ? 'checked' : ''}><span>Actualizează zilnic dosarele în lucru de pe portal.just.ro (în aplicația desktop, la prima pornire din zi)</span></label>
           <label class="field"><span>Temă</span><select name="theme">${[['auto', 'Automată (după sistem)'], ['light', 'Luminoasă'], ['dark', 'Întunecată']].map(([v, l]) => `<option value="${v}" ${theme === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
           <label class="field"><span>Zile nelucrătoare suplimentare</span><textarea name="extraHolidays" rows="3" placeholder="ex. 2026-12-24, 2026-12-31">${h(setting('extraHolidays', ''))}</textarea><small>Format AAAA-LL-ZZ, separate prin virgulă sau rând nou. Se folosesc în calendar și la calculul termenelor.</small></label>
           <div><button class="btn primary">Salvează preferințele</button></div>
@@ -1226,6 +1230,9 @@ const ACT = {
   editEvent: d => eventForm(byId('events', d.id)),
   newCase: () => caseForm(),
   editCase: d => caseForm(byId('cases', d.id)),
+  portalSync: d => portalSyncOne(d.id),
+  portalSyncAll: () => portalSyncAll(),
+  portalNewCase: () => portalNewCase(),
   goCase: d => { location.hash = '#/dosar/' + d.id; },
   newClient: () => clientForm(),
   editClient: d => clientForm(byId('clients', d.id)),
@@ -1333,6 +1340,7 @@ const FORMS = {
     await setSetting('greetName', f.greetName.value.trim() || 'Ioana');
     await setSetting('spvUrl', f.spvUrl.value.trim() || 'https://www.anaf.ro');
     await setSetting('theme', f.theme.value);
+    await setSetting('portalAuto', f.portalAuto.checked);
     await setSetting('extraHolidays', f.extraHolidays.value.trim());
     applyTheme();
     toast('Preferințe salvate.');
@@ -1496,6 +1504,10 @@ window.addEventListener('hashchange', () => {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   }
   route();
+  // O dată pe zi, dosarele în lucru se actualizează singure de pe portal (doar în aplicația desktop)
+  if (portalAvailable() && setting('portalAuto', true) && setting('portalLastSync', '') !== today()) {
+    setTimeout(() => portalSyncAll({ quiet: true }), 4000);
+  }
   // La miezul nopții, „Azi” trebuie să se actualizeze
   let day = today();
   setInterval(() => { if (today() !== day && !$('#modal').open) { day = today(); rerender(); } }, 60000);
