@@ -1107,6 +1107,7 @@ function viewSettings() {
           <label class="field"><span>Nume folosit în salut</span><input name="greetName" value="${h(setting('greetName', 'Ioana'))}"></label>
           <label class="field"><span>Adresa butonului „SPV ANAF”</span><input name="spvUrl" type="url" value="${h(setting('spvUrl', 'https://www.anaf.ro'))}"><small>Lipiți aici adresa exactă a paginii de autentificare SPV pe care o folosiți.</small></label>
           <label class="field check"><input type="checkbox" name="portalAuto" ${setting('portalAuto', true) ? 'checked' : ''}><span>Actualizează zilnic dosarele în lucru de pe portal.just.ro (în aplicația desktop, la prima pornire din zi)</span></label>
+          <div><button type="button" class="btn sm" data-act="portalTest">Testează legătura cu portalul</button></div>
           <label class="field"><span>Temă</span><select name="theme">${[['auto', 'Automată (după sistem)'], ['light', 'Luminoasă'], ['dark', 'Întunecată']].map(([v, l]) => `<option value="${v}" ${theme === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
           <label class="field"><span>Zile nelucrătoare suplimentare</span><textarea name="extraHolidays" rows="3" placeholder="ex. 2026-12-24, 2026-12-31">${h(setting('extraHolidays', ''))}</textarea><small>Format AAAA-LL-ZZ, separate prin virgulă sau rând nou. Se folosesc în calendar și la calculul termenelor.</small></label>
           <div><button class="btn primary">Salvează preferințele</button></div>
@@ -1234,6 +1235,7 @@ const ACT = {
   portalSync: d => portalSyncOne(d.id),
   portalSyncAll: () => portalSyncAll(),
   portalNewCase: () => portalNewCase(),
+  portalTest: () => portalTest(),
   goCase: d => { location.hash = '#/dosar/' + d.id; },
   newClient: () => clientForm(),
   editClient: d => clientForm(byId('clients', d.id)),

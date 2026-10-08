@@ -159,8 +159,18 @@ try {
                 $wc.Encoding = $utf8
                 $wc.Headers.Add('Content-Type', 'text/xml; charset=utf-8')
                 $wc.Headers.Add('SOAPAction', "`"portalquery.just.ro/$action`"")
-                $resp = $wc.UploadString($portal, $body)
-                SendText $ctx 200 'text/xml; charset=utf-8' $resp
+                try {
+                    $resp = $wc.UploadString($portal, $body)
+                    Write-Host ('  Portal: ' + $action + ' - raspuns primit') -ForegroundColor DarkGray
+                    SendText $ctx 200 'text/xml; charset=utf-8' $resp
+                } catch [System.Net.WebException] {
+                    # raspunsul exact al portalului (de ex. 403), ca sa se vada in aplicatie si in aceasta fereastra
+                    $cod = ''
+                    if ($_.Exception.Response) { $cod = [string][int]$_.Exception.Response.StatusCode + ' ' + $_.Exception.Response.StatusDescription }
+                    $msg = if ($cod) { "Portalul a raspuns cu eroarea $cod" } else { 'Portalul nu poate fi contactat: ' + $_.Exception.Message }
+                    Write-Host ('  ' + $msg) -ForegroundColor Yellow
+                    SendText $ctx 502 'text/plain; charset=utf-8' $msg
+                }
             }
             elseif ($path -eq '/api/deschide' -and $verb -eq 'POST') {
                 # deschide un act cu programul implicit, dintr-o copie temporara

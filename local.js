@@ -13,7 +13,8 @@ if (!window.desktop && ['localhost', '127.0.0.1'].includes(location.hostname) &&
     async portal(op, body) {
       const r = await fetch('/api/soap', { method: 'POST', headers: { ...H, 'X-SOAPAction': op, 'Content-Type': 'text/xml; charset=utf-8' }, body });
       const t = await r.text();
-      if (!r.ok) throw new Error('Portalul nu a răspuns: ' + (t || r.status));
+      if (r.status === 403) throw new Error('Programul local a respins cererea. Deschideți aplicația de pe iconița „Cabinet Stoica” (adresa http://localhost:8766).');
+      if (!r.ok) throw new Error(t || 'Portalul nu a răspuns (eroarea ' + r.status + ').');
       return t;
     },
     async backup(json) {

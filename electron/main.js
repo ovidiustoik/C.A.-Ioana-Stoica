@@ -1,6 +1,6 @@
 'use strict';
 /* Aplicația desktop: o fereastră proprie care încarcă aplicația publicată pe GitHub Pages. */
-const { app, BrowserWindow, Menu, shell, ipcMain, net } = require('electron');
+const { app, BrowserWindow, Menu, shell, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -72,15 +72,27 @@ const PORTAL_OPS = ['CautareDosare', 'CautareDosare2', 'CautareSedinte'];
 ipcMain.handle('portal-soap', async (e, op, body) => {
   if (!isApp(e.senderFrame?.url || '')) throw new Error('Cerere respinsă.');
   if (!PORTAL_OPS.includes(op) || typeof body !== 'string' || body.length > 20000) throw new Error('Operațiune nepermisă.');
-  const r = await net.fetch(PORTAL_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/xml; charset=utf-8', SOAPAction: `"portalquery.just.ro/${op}"` },
-    body,
-    signal: AbortSignal.timeout(30000),
+  // cerere simplă, cu aceleași antete ca programul local (fără antetele de browser ale Chromium)
+  const data = Buffer.from(body, 'utf8');
+  const u = new URL(PORTAL_URL);
+  return new Promise((resolve, reject) => {
+    const req = require(u.protocol === 'https:' ? 'https' : 'http').request(u, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/xml; charset=utf-8', SOAPAction: `"portalquery.just.ro/${op}"`, 'Content-Length': data.length },
+      timeout: 30000,
+    }, res => {
+      const chunks = [];
+      res.on('data', c => chunks.push(c));
+      res.on('end', () => {
+        const text = Buffer.concat(chunks).toString('utf8');
+        if (res.statusCode >= 200 && res.statusCode < 300) resolve(text);
+        else reject(new Error(`Portalul a răspuns cu eroarea ${res.statusCode} ${res.statusMessage || ''}`.trim()));
+      });
+    });
+    req.on('timeout', () => req.destroy(new Error('Portalul nu a răspuns în 30 de secunde.')));
+    req.on('error', err => reject(new Error('Portalul nu poate fi contactat: ' + err.message)));
+    req.end(data);
   });
-  const text = await r.text();
-  if (!r.ok) throw new Error(`Portalul a răspuns cu eroarea ${r.status}.`);
-  return text;
 });
 
 ipcMain.handle('open-file', async (e, name, data) => {

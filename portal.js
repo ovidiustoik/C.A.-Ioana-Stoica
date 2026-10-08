@@ -49,7 +49,12 @@ function parsePortal(xmlText) {
 
 async function portalSearch(numar) {
   if (!portalAvailable()) throw new Error('Legătura cu portalul funcționează doar în aplicația desktop.');
-  const xml = await window.desktop.portal('CautareDosare', soapEnv('CautareDosare', `<numarDosar>${xmlEsc(numar)}</numarDosar>`));
+  let xml;
+  try {
+    xml = await window.desktop.portal('CautareDosare', soapEnv('CautareDosare', `<numarDosar>${xmlEsc(numar)}</numarDosar>`));
+  } catch (err) {
+    throw new Error(String(err.message || err).replace(/^Error invoking remote method '[^']+': (Error: )?/, ''));
+  }
   return parsePortal(xml);
 }
 
@@ -205,7 +210,7 @@ function portalNewCase() {
 
 function portalCard(c) {
   const p = c.portal;
-  const btn = `<button class="btn sm" data-act="portalSync" data-id="${c.id}">⟳ Actualizează de pe portal</button>`;
+  const btn = `<button class="btn sm" data-act="portalTest" title="Verifică legătura cu portalul">Test</button><button class="btn sm" data-act="portalSync" data-id="${c.id}">⟳ Actualizează de pe portal</button>`;
   if (!p) return `<div class="card"><div class="card-head"><h2>Portal.just.ro</h2>${btn}</div>${empty(portalAvailable() ? 'Dosarul nu a fost încă preluat de pe portal.' : 'Preluarea de pe portal funcționează în aplicația desktop.')}</div>`;
   const sol = p.sedinte.filter(s => s.solutie).reverse();
   return `<div class="card">
@@ -218,4 +223,22 @@ function portalCard(c) {
     ${sol.length ? `<div class="group-title">Soluții</div><ul class="list">${sol.map(s => `<li><div class="grow"><b>${h(s.solutie)}</b> <span class="muted small">${fmtDate(s.data)}</span>${s.solutieSumar ? `<span class="small">${h(s.solutieSumar)}</span>` : ''}${s.document ? `<span class="muted small">${h(s.document)} ${h(s.numarDocument)}${s.dataDocument ? ' / ' + fmtDate(s.dataDocument) : ''}</span>` : ''}</div></li>`).join('')}</ul>` : ''}
     ${p.caiAtac.length ? `<div class="group-title">Căi de atac</div><ul class="list">${p.caiAtac.map(x => `<li><span class="grow">${h(x.tip)} – ${h(x.parte)}</span><span class="muted small">${x.data ? fmtDate(x.data) : ''}</span></li>`).join('')}</ul>` : ''}
   </div>`;
+}
+
+// Diagnostic: cum e pornită aplicația și ce răspunde portalul (pentru un dosar de probă oarecare)
+async function portalTest() {
+  const mod = window.desktop?.local ? 'programul local (iconița „Cabinet Stoica” / Porneste.cmd)'
+    : window.desktop ? 'aplicația .exe (Electron)' : 'browser (fără legătură cu portalul)';
+  let rez;
+  if (!portalAvailable()) rez = '<p>În browser portalul nu poate fi interogat. Porniți aplicația de pe iconița „Cabinet Stoica”.</p>';
+  else {
+    toast('Se testează legătura cu portalul…');
+    try {
+      const r = await portalSearch('1/211/2026');
+      rez = `<p><b style="color:var(--ok)">✓ Portalul răspunde.</b> Dosarul de probă 1/211/2026: ${r.length ? plural2(r.length, 'rezultat', 'rezultate') : 'niciun rezultat (normal pentru un număr de probă)'}.</p>`;
+    } catch (err) {
+      rez = `<p><b class="red">✗ ${h(err.message)}</b></p><p class="small">Trimiteți-mi textul de mai sus, împreună cu modul de pornire.</p>`;
+    }
+  }
+  openForm({ title: 'Test: legătura cu portal.just.ro', intro: `<p>Mod de pornire: <b>${mod}</b></p>${rez}`, fields: [], submit: 'Închide', onSave: async () => {} });
 }
