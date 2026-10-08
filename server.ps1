@@ -68,6 +68,62 @@ function FisierStatic($path) {
     return $full
 }
 
+# ---- portal.just.ro ----
+# Se incearca, in ordine: cererea simpla (ca in My Rejust), aceeasi cerere cu identificare de program
+# (User-Agent) si varianta https. Prima care merge se retine pentru cererile urmatoare.
+try { [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12 } catch {}
+$uaBrowser = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) CabinetStoica/1.3'
+$variante = @(@{url = $portal; ua = $null}, @{url = $portal; ua = $uaBrowser})
+if ($portal -like 'http://*') { $variante += @{url = ('https://' + $portal.Substring(7)); ua = $uaBrowser} }
+$script:variantaBuna = $null
+
+function PortalTrimite($v, [string]$action, [string]$body) {
+    $req = [Net.HttpWebRequest]::Create($v.url)
+    $req.Method = 'POST'
+    $req.ContentType = 'text/xml; charset=utf-8'
+    $req.Headers.Add('SOAPAction', "`"portalquery.just.ro/$action`"")
+    if ($v.ua) { $req.UserAgent = $v.ua }
+    $req.Timeout = 30000
+    $bytes = $utf8.GetBytes($body)
+    $req.ContentLength = $bytes.Length
+    $st = $req.GetRequestStream(); $st.Write($bytes, 0, $bytes.Length); $st.Close()
+    try { $res = $req.GetResponse() }
+    catch [Net.WebException] {
+        $res = $_.Exception.Response
+        if (-not $res) { return @{ok = $false; detaliu = $_.Exception.Message} }
+    }
+    $sr = New-Object IO.StreamReader($res.GetResponseStream(), $utf8)
+    $text = $sr.ReadToEnd(); $sr.Close()
+    $cod = [int]$res.StatusCode
+    $server = [string]$res.Headers['Server']
+    $res.Close()
+    if ($cod -ge 200 -and $cod -lt 300) { return @{ok = $true; text = $text} }
+    $fragment = (($text -replace '<[^>]+>', ' ') -replace '\s+', ' ').Trim()
+    if ($fragment.Length -gt 160) { $fragment = $fragment.Substring(0, 160) + '...' }
+    $d = "eroarea $cod $($res.StatusDescription)"
+    if ($server) { $d += " (server: $server)" }
+    if ($fragment) { $d += " - $fragment" }
+    return @{ok = $false; detaliu = $d}
+}
+
+function PortalCerere([string]$action, [string]$body) {
+    $lista = @()
+    if ($script:variantaBuna) { $lista += $script:variantaBuna }
+    $lista += $variante | Where-Object { $_ -ne $script:variantaBuna }
+    $erori = @()
+    foreach ($v in $lista) {
+        try { $r = PortalTrimite $v $action $body } catch { $r = @{ok = $false; detaliu = $_.Exception.Message} }
+        $eticheta = $v.url + $(if ($v.ua) { ' + User-Agent' } else { '' })
+        if ($r.ok) {
+            if ($script:variantaBuna -ne $v) { Write-Host "  Portal: merge varianta $eticheta" -ForegroundColor Green }
+            $script:variantaBuna = $v
+            return $r
+        }
+        $erori += "$eticheta -> $($r.detaliu)"
+    }
+    return @{ok = $false; mesaj = ('Portalul a refuzat toate variantele de cerere: ' + ($erori -join ' | '))}
+}
+
 # Iconita "Cabinet Stoica" pe Desktop (doar daca nu exista deja)
 function ScurtaturaDesktop {
     if (-not $peWindows) { return }
@@ -155,21 +211,11 @@ try {
                 $action = $req.Headers['X-SOAPAction']
                 if ($allowed -notcontains $action) { SendText $ctx 400 'text/plain' 'operatie nepermisa'; continue }
                 $body = ReadBody $req
-                $wc = New-Object System.Net.WebClient
-                $wc.Encoding = $utf8
-                $wc.Headers.Add('Content-Type', 'text/xml; charset=utf-8')
-                $wc.Headers.Add('SOAPAction', "`"portalquery.just.ro/$action`"")
-                try {
-                    $resp = $wc.UploadString($portal, $body)
-                    Write-Host ('  Portal: ' + $action + ' - raspuns primit') -ForegroundColor DarkGray
-                    SendText $ctx 200 'text/xml; charset=utf-8' $resp
-                } catch [System.Net.WebException] {
-                    # raspunsul exact al portalului (de ex. 403), ca sa se vada in aplicatie si in aceasta fereastra
-                    $cod = ''
-                    if ($_.Exception.Response) { $cod = [string][int]$_.Exception.Response.StatusCode + ' ' + $_.Exception.Response.StatusDescription }
-                    $msg = if ($cod) { "Portalul a raspuns cu eroarea $cod" } else { 'Portalul nu poate fi contactat: ' + $_.Exception.Message }
-                    Write-Host ('  ' + $msg) -ForegroundColor Yellow
-                    SendText $ctx 502 'text/plain; charset=utf-8' $msg
+                $r = PortalCerere $action $body
+                if ($r.ok) { SendText $ctx 200 'text/xml; charset=utf-8' $r.text }
+                else {
+                    Write-Host ('  ' + $r.mesaj) -ForegroundColor Yellow
+                    SendText $ctx 502 'text/plain; charset=utf-8' $r.mesaj
                 }
             }
             elseif ($path -eq '/api/deschide' -and $verb -eq 'POST') {
