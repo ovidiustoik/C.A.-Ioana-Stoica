@@ -47,13 +47,22 @@ function parsePortal(xmlText) {
   }));
 }
 
+// Refuzul portalului (403 / pagină de protecție): nu insistăm cu alte cereri.
+const isBlocked = msg => /\b403\b|refuzat toate variantele/i.test(String(msg));
+
 async function portalSearch(numar) {
   if (!portalAvailable()) throw new Error('Legătura cu portalul funcționează doar în aplicația desktop.');
   let xml;
   try {
     xml = await window.desktop.portal('CautareDosare', soapEnv('CautareDosare', `<numarDosar>${xmlEsc(numar)}</numarDosar>`));
   } catch (err) {
-    throw new Error(String(err.message || err).replace(/^Error invoking remote method '[^']+': (Error: )?/, ''));
+    const detaliu = String(err.message || err).replace(/^Error invoking remote method '[^']+': (Error: )?/, '');
+    const e = new Error(isBlocked(detaliu)
+      ? 'Portalul instanțelor a refuzat interogarea automată (pagină de protecție anti-robot, eroarea 403). Nu ține de aplicație; încercați mai târziu sau consultați dosarul direct pe portal.just.ro.'
+      : detaliu);
+    e.detaliu = detaliu;
+    e.blocat = isBlocked(detaliu);
+    throw e;
   }
   return parsePortal(xml);
 }
@@ -168,18 +177,23 @@ async function portalSyncAll({ quiet = false } = {}) {
   _syncRunning = true;
   const list = S.cases.filter(c => c.status === 'activ' && c.number && RE_NR_DOSAR.test(c.number.trim()));
   const tot = { termeneNoi: 0, solutiiNoi: 0 }, errors = [];
+  let blocat = false;
   if (!quiet) toast(`Se actualizează ${plural2(list.length, 'dosar', 'dosare')} de pe portal…`);
   for (const c of list) {
     try {
       const st = await syncCase({ ...c }, { interactive: false });
       tot.termeneNoi += st.termeneNoi; tot.solutiiNoi += st.solutiiNoi;
-    } catch (err) { errors.push(err.message); }
+    } catch (err) {
+      errors.push(err.message);
+      if (err.blocat) { blocat = true; break; } // protecția portalului: oprim, ca să nu agravăm blocarea
+    }
     await new Promise(r => setTimeout(r, 600)); // nu suprasolicităm portalul
   }
   _syncRunning = false;
   await setSetting('portalLastSync', today());
   const msg = summary(tot);
-  if (!quiet || msg || errors.length) toast(`Portal: ${list.length - errors.length}/${list.length} dosare actualizate${msg ? ' – ' + msg : ''}${errors.length ? `; ${errors.length} cu probleme (vezi dosarele)` : ''}.`);
+  if (blocat) toast('Portalul instanțelor refuză momentan interogările automate (403). Actualizarea a fost oprită; dosarele rămân cum erau.');
+  else if (!quiet || msg || errors.length) toast(`Portal: ${list.length - errors.length}/${list.length} dosare actualizate${msg ? ' – ' + msg : ''}${errors.length ? `; ${errors.length} cu probleme (vezi dosarele)` : ''}.`);
   if (errors.length) console.warn('Portal:', errors);
   rerender();
 }
@@ -198,9 +212,16 @@ function portalNewCase() {
       const number = v.number.trim();
       if (!RE_NR_DOSAR.test(number)) throw new Error('Numărul trebuie să aibă forma 1234/211/2026.');
       if (S.cases.some(c => c.number === number)) throw new Error('Dosarul există deja în listă.');
-      const res = await portalSearch(number);
-      if (!res.length) throw new Error('Dosarul nu a fost găsit pe portal.');
       const c = { number, clientId: v.clientId, status: 'activ', notes: '' };
+      let res;
+      try { res = await portalSearch(number); }
+      catch (err) {
+        // portalul nu răspunde: dosarul se adaugă oricum, datele se pot prelua mai târziu
+        await save('cases', c);
+        setTimeout(() => { location.hash = '#/dosar/' + c.id; toast('Dosarul a fost adăugat fără datele de pe portal. ' + err.message, 9000); }, 50);
+        return;
+      }
+      if (!res.length) throw new Error('Dosarul nu a fost găsit pe portal.');
       await applyPortal(c, res[0]);
       if (res.length > 1) toast('Dosarul apare la mai multe instanțe; am ales prima. Puteți schimba din „Actualizează de pe portal”.');
       setTimeout(() => { location.hash = '#/dosar/' + c.id; }, 50);
@@ -237,7 +258,7 @@ async function portalTest() {
       const r = await portalSearch('1/211/2026');
       rez = `<p><b style="color:var(--ok)">✓ Portalul răspunde.</b> Dosarul de probă 1/211/2026: ${r.length ? plural2(r.length, 'rezultat', 'rezultate') : 'niciun rezultat (normal pentru un număr de probă)'}.</p>`;
     } catch (err) {
-      rez = `<p><b class="red">✗ ${h(err.message)}</b></p><p class="small">Trimiteți-mi textul de mai sus, împreună cu modul de pornire.</p>`;
+      rez = `<p><b class="red">✗ ${h(err.message)}</b></p>${err.detaliu && err.detaliu !== err.message ? `<p class="small muted">Detalii tehnice: ${h(err.detaliu)}</p>` : ''}`;
     }
   }
   openForm({ title: 'Test: legătura cu portal.just.ro', intro: `<p>Mod de pornire: <b>${mod}</b></p>${rez}`, fields: [], submit: 'Închide', onSave: async () => {} });

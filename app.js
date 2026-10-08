@@ -20,12 +20,12 @@ const fmtSize = b => (b > 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(
 const norm = s => String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
-function toast(msg) {
+function toast(msg, ms = 2600) {
   const t = $('#toast');
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(toast._t);
-  toast._t = setTimeout(() => t.classList.remove('show'), 2600);
+  toast._t = setTimeout(() => t.classList.remove('show'), Math.max(ms, String(msg).length * 55)); // mesajele lungi stau mai mult
 }
 
 function download(name, content, type) {
