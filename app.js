@@ -86,6 +86,7 @@ const ICONS = {
   geamantan: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/>',
   contabilitate: '<rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M16 15h2M7 3h10"/>',
   termene: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  taxa: '<path d="M4 4h16v6a2 2 0 0 0 0 4v6H4v-6a2 2 0 0 0 0-4z"/><path d="M9 9h6M9 15h6"/>',
   linkuri: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
   semnatura: '<path d="M4 20h16"/><path d="M15 4l5 5-9 9H6v-5z"/>',
   mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
@@ -111,6 +112,7 @@ const NAV = [
   ['semnatura', 'Semnătură electronică'],
   ['contabilitate', 'Contabilitate & ANAF'],
   ['termene', 'Calcul termene'],
+  ['taxa', 'Calcul taxă timbru'],
   ['linkuri', 'Linkuri utile'],
   null,
   ['setari', 'Setări & backup'],
@@ -1164,6 +1166,7 @@ const ROUTES = {
   semnatura: [viewSignature, 'Semnătură electronică'],
   contabilitate: [viewAccounting, 'Contabilitate & ANAF'],
   termene: [viewTermCalc, 'Calcul termene'],
+  taxa: [viewTaxa, 'Calcul taxă de timbru'],
   linkuri: [viewLinks, 'Linkuri utile'],
   setari: [viewSettings, 'Setări & backup'],
   cautare: [viewSearch, 'Căutare'],
@@ -1236,6 +1239,12 @@ const ACT = {
   portalSyncAll: () => portalSyncAll(),
   portalNewCase: () => portalNewCase(),
   portalTest: () => portalTest(),
+  taxaAdauga: () => taxaAdauga(),
+  taxaGoleste: () => { TX.cos = []; rerender(); },
+  taxaScoate: d => { TX.cos.splice(Number(d.i), 1); rerender(); },
+  taxaCopiaza: async () => {
+    try { await navigator.clipboard.writeText(taxaText()); toast('Text copiat.'); } catch { toast('Selectați textul și copiați-l cu Ctrl+C.'); }
+  },
   goCase: d => { location.hash = '#/dosar/' + d.id; },
   newClient: () => clientForm(),
   editClient: d => clientForm(byId('clients', d.id)),
@@ -1460,6 +1469,9 @@ document.addEventListener('change', async e => {
   if (el.matches('textarea.note')) {
     const t = byId('tasks', el.dataset.note);
     if (t && t.note !== el.value) { await save('tasks', { ...t, note: el.value }); toast('Notă salvată.'); }
+  } else if (el.dataset.tx === 'sel') {
+    TX.sel = el.value; TX.vals = {};
+    rerender();
   } else if (el.dataset.filter) {
     setPath(el.dataset.filter, el.value);
     rerender();
@@ -1481,6 +1493,15 @@ document.addEventListener('change', async e => {
 });
 
 document.addEventListener('input', e => {
+  const tv = e.target.dataset?.txv || (e.target.dataset?.tx === 'q' ? 'q' : null);
+  if (tv) {
+    if (tv === 'q') TX.q = e.target.value; else TX.vals[tv] = e.target.value;
+    const pos = e.target.selectionStart, sel = tv === 'q' ? '[data-tx="q"]' : `[data-txv="${tv}"]`;
+    rerender();
+    const again = $(sel);
+    if (again) { again.focus(); try { again.setSelectionRange(pos, pos); } catch { /* câmp fără cursor */ } }
+    return;
+  }
   if (e.target.matches('textarea.note')) autoGrow(e.target);
   if (e.target.matches('input[type=search][data-filter]')) {
     clearTimeout(e.target._t);

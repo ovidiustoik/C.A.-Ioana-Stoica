@@ -177,7 +177,7 @@ nav .sep { height: 1px; background: var(--line); margin: 8px 6px; }
 .toolbar select, .toolbar input { font: inherit; padding: 7px 10px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
 .grid-2 { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 18px; align-items: start; }
 .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
-@media (max-width: 1000px) { .grid-2 { grid-template-columns: 1fr; } }
+@media (max-width: 1000px) { .grid-2 { grid-template-columns: minmax(0, 1fr); } }
 
 .pill { display: inline-block; font-size: .7rem; font-weight: 700; padding: 2px 8px; border-radius: 99px; text-transform: uppercase; letter-spacing: .03em; white-space: nowrap; }
 .pill.u1 { background: color-mix(in srgb, var(--u1) 16%, transparent); color: var(--u1); }
@@ -420,3 +420,4 @@ dialog.wide { width: min(1180px, calc(100vw - 24px)); }
 .sig-preview img { max-height: 100%; max-width: 100%; }
 .sig-preview.empty { background: var(--surface-2); color: var(--muted); font-size: .9rem; text-align: center; padding: 20px; }
 label.btn input[type=file] { display: none; }
+.field select, .field input, .field textarea { max-width: 100%; }

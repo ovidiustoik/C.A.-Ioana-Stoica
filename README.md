@@ -17,6 +17,7 @@ Aplicație web pentru organizarea activității cabinetului. Rulează în browse
 | **Geamantan personal** | Acte personale și profesionale (CI, legitimație, asigurare RCP etc.), cu dată de expirare și alertă cu 30 de zile înainte. |
 | **Contabilitate & ANAF** | Buton către SPV ANAF și Ghișeul.ro; evidența obligațiilor și notificărilor din SPV, introduse automat în calendar și TO DO; registru simplu de încasări și plăți, cu export CSV pentru Excel. |
 | **Calcul termene** | Calculează ultima zi a unui termen procedural (art. 181 C.proc.civ.), cu prelungire peste zilele nelucrătoare, și îl poate adăuga în TO DO. |
+| **Calcul taxă timbru** | Taxa judiciară de timbru după O.U.G. nr. 80/2013, pentru 81 de obiecte non-penale (fără încuviințarea executării silite): barem art. 3, drepturi reale, partaj, cereri neevaluabile, cereri în cursul procesului, executare silită, familie, mediere, proceduri speciale, alte cereri, scutiri. Se pot aduna mai multe capete de cerere; rezultă totalul și un text gata de copiat. Regulile provin din calculatorul „TJT_complex”; cele marcate „de verificat” trebuie confirmate în textul legii. |
 | **Linkuri utile** | legislatie.just.ro, ReJust, Registratura electronică, Portalul instanțelor, Ghișeul.ro, ANAF, ICCJ, CCR, HUDOC, CJUE, UNBR, ONRC, ANCPI ePay, Claude etc. Se pot edita. |
 | **Setări & backup** | Nume, adresa SPV, temă, zile nelucrătoare suplimentare, backup/restaurare, ștergerea datelor. |
 
