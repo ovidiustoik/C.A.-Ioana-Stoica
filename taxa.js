@@ -1,8 +1,8 @@
 'use strict';
-/* Calculul taxei judiciare de timbru (O.U.G. nr. 80/2013).
-   Regulile provin din calculatorul „TJT_complex.xlsm” (formulele și trimiterile la articole), verificate
-   față de textul ordonanței cât s-a putut. Cele marcate „verifica” au fie formule inconsecvente în Excel,
-   fie un text de lege pe care nu l-am putut confirma: se afișează cu avertisment. */
+/* Calculul taxei judiciare de timbru (O.U.G. nr. 80/2013), în forma modificată prin Legea nr. 268/2024
+   (în vigoare din 3.11.2024: art. 5 – partaj, art. 15 – familie) și Legea nr. 199/2025 (o scutire nouă, art. 29 alin. (6)).
+   Punctul de plecare a fost calculatorul „TJT_complex.xlsm”, depășit la partaj și divorț și cu câteva erori;
+   fiecare regulă a fost confruntată cu textul consolidat al ordonanței. „nota” = precizare (practică neunitară etc.). */
 
 // Baremul de la art. 3 alin. (1)
 function barem(v) {
@@ -39,26 +39,26 @@ const TAXE = [
   ['Acțiuni evaluabile în bani', 'v3', 'Constatarea existenței sau inexistenței unui drept patrimonial', 'art. 3 alin. (1) lit. b)', { k: 'barem' }],
   ['Acțiuni evaluabile în bani', 'v4', 'Hotărâre care ține loc de act autentic de înstrăinare sau de constituire a unui drept real', 'art. 3 alin. (1) lit. c)', { k: 'barem' }],
   ['Acțiuni evaluabile în bani', 'v5', 'Daune morale, altele decât cele pentru atingeri aduse onoarei, demnității sau reputației', 'art. 3 alin. (1)', { k: 'barem' }],
-  ['Acțiuni evaluabile în bani', 'v6', 'Revendicare împreună cu grănițuire', 'art. 8 alin. (1) lit. d) teza finală', { k: 'barem', plus: 100 }, 'Excelul calculează 100 lei (grănițuirea) + taxa la valoare pentru revendicare. Verificați textul art. 8.'],
+  ['Acțiuni evaluabile în bani', 'v6', 'Grănițuire împreună cu revendicarea unei porțiuni de teren', 'art. 8 alin. (1) lit. d)', { k: 'barem', plus: 100, eticheta: 'Valoarea porțiunii de teren revendicate (lei)' }],
   // --- art. 4: drepturi reale
-  ['Drepturi reale', 'r1', 'Acțiuni posesorii', 'art. 4 alin. (1)', { k: 'barem', cota: 0.2, eticheta: 'Valoarea bunului (lei)' }, 'Excelul aplică baremul la 20% din valoarea bunului (cu o eroare de formulă în prima tranșă). Verificați art. 4 alin. (1).'],
-  ['Drepturi reale', 'r2', 'Acțiuni privind un dezmembrământ al dreptului de proprietate', 'art. 4 alin. (2)', { k: 'barem', cota: 0.2, eticheta: 'Valoarea bunului (lei)' }, 'Excelul aplică baremul la 20% din valoarea bunului. Verificați art. 4 alin. (2).'],
+  ['Drepturi reale', 'r1', 'Acțiuni posesorii', 'art. 4 alin. (1)', { k: 'barem', cota: 0.2, eticheta: 'Valoarea bunului a cărui posesie se cere (lei)' }],
+  ['Drepturi reale', 'r2', 'Acțiuni privind un dezmembrământ al dreptului de proprietate', 'art. 4 alin. (2)', { k: 'barem', cota: 0.2, eticheta: 'Valoarea bunului asupra căruia poartă dezmembrământul (lei)' }],
   ['Drepturi reale', 'r3', 'Servituți', 'art. 4 alin. (2) teza a doua', { k: 'barem', cota: 0.2, eticheta: 'Valoarea imobilului (lei)' }],
   ['Drepturi reale', 'r4', 'Grănițuire', 'art. 8 alin. (1) lit. d)', { k: 'fix', suma: 100 }],
-  // --- art. 5: partaj
-  ['Partaj judiciar', 'p1', 'Stabilirea bunurilor supuse împărțelii', 'art. 5 alin. (1) lit. a)', { k: 'procent', p: 3, eticheta: 'Valoarea bunurilor (lei)' }],
-  ['Partaj judiciar', 'p2', 'Stabilirea calității de coproprietar și a cotei-părți a fiecăruia', 'art. 5 alin. (1) lit. b)', { k: 'fix', suma: 50 }, 'Excelul stabilește 50 lei fix. Verificați dacă textul prevede 50 lei pentru fiecare coproprietar.'],
-  ['Partaj judiciar', 'p3', 'Creanțe între coproprietari născute din starea de proprietate comună', 'art. 5 alin. (1) lit. c)', { k: 'procent', p: 3, eticheta: 'Valoarea creanțelor (lei)' }],
-  ['Partaj judiciar', 'p4', 'Cererea de raport', 'art. 5 alin. (1) lit. d)', { k: 'procent', p: 3, eticheta: 'Valoarea bunurilor de raportat (lei)' }],
-  ['Partaj judiciar', 'p5', 'Reducțiunea liberalităților excesive', 'art. 5 alin. (1) lit. e)', { k: 'procent', p: 3, eticheta: 'Valoarea părții de rezervă supuse reîntregirii (lei)' }],
-  ['Partaj judiciar', 'p6', 'Partaj propriu-zis, indiferent de modalitatea de realizare', 'art. 5 alin. (1) lit. f)', { k: 'procent', p: 3, eticheta: 'Valoarea masei partajabile (lei)' }],
-  ['Partaj judiciar', 'p7', 'Mai multe cereri de partaj formulate în aceeași acțiune', 'art. 5 alin. (2)', { k: 'procent', p: 5, eticheta: 'Valoarea masei partajabile (lei)' }],
+  // --- art. 5: partaj (forma dată de Legea nr. 268/2024, în vigoare din 3.11.2024)
+  ['Partaj judiciar', 'p1', 'Stabilirea bunurilor supuse împărțelii', 'art. 5 alin. (1)', { k: 'barem', jumatate: true, eticheta: 'Valoarea bunurilor (lei)' }],
+  ['Partaj judiciar', 'p3', 'Creanțe între coproprietari născute din starea de proprietate comună', 'art. 5 alin. (1)', { k: 'barem', jumatate: true, eticheta: 'Valoarea creanțelor (lei)' }],
+  ['Partaj judiciar', 'p4', 'Raportul donațiilor', 'art. 5 alin. (1)', { k: 'barem', jumatate: true, eticheta: 'Valoarea bunurilor de raportat (lei)' }],
+  ['Partaj judiciar', 'p5', 'Reducțiunea liberalităților excesive', 'art. 5 alin. (1)', { k: 'barem', jumatate: true, eticheta: 'Valoarea în discuție (lei)' }],
+  ['Partaj judiciar', 'p6', 'Partaj propriu-zis, indiferent de modalitatea de realizare', 'art. 5 alin. (1)', { k: 'barem', jumatate: true, eticheta: 'Valoarea masei partajabile (lei)' }],
+  ['Partaj judiciar', 'p7', 'Mai multe dintre cererile de mai sus, în aceeași acțiune (o singură taxă)', 'art. 5 alin. (2)', { k: 'barem', jumatate: true, eticheta: 'Valoarea cea mai mare dintre cereri (lei)' }, '', 'Se datorează o singură taxă, calculată la valoarea cea mai mare.'],
+  ['Partaj judiciar', 'p2', 'Stabilirea calității de coproprietar sau de moștenitor și a cotelor-părți', 'art. 5 alin. (3)', { k: 'fix', suma: 50, unitate: 'Număr de coproprietari / moștenitori' }],
   // --- cereri neevaluabile
   ['Cereri neevaluabile în bani', 'n1', 'Daune morale pentru atingeri aduse onoarei, demnității sau reputației unei persoane fizice', 'art. 7', { k: 'fix', suma: 100 }],
   ['Cereri neevaluabile în bani', 'n2', 'Constatarea existenței sau inexistenței unui drept nepatrimonial', 'art. 8 alin. (1) lit. a)', { k: 'fix', suma: 100 }],
   ['Cereri neevaluabile în bani', 'n3', 'Anularea sau constatarea nulității unui act juridic nepatrimonial', 'art. 8 alin. (1) lit. b)', { k: 'fix', suma: 100 }],
   ['Cereri neevaluabile în bani', 'n4', 'Dreptul de folosință al bunului închiriat sau arendat (fără plata unor sume)', 'art. 8 alin. (1) lit. c)', { k: 'fix', suma: 100 }],
-  ['Cereri neevaluabile în bani', 'n5', 'Repunerea părților în situația anterioară, neaccesorie acțiunii în desființarea actului', 'art. 8 alin. (2)', { k: 'prag', limita: 5000, sub: 50, peste: 300, eticheta: 'Valoarea bunurilor (lei)' }, 'Formula din Excel e defectă (peste 5.000 lei dă 0). Am folosit 50 lei până la 5.000 lei și 300 lei peste. Verificați art. 8 alin. (2).'],
+  ['Cereri neevaluabile în bani', 'n5', 'Repunerea părților în situația anterioară, neaccesorie acțiunii în desființarea actului', 'art. 8 alin. (2)', { k: 'prag', limita: 5000, sub: 50, peste: 300, eticheta: 'Valoarea bunurilor (lei)' }, '', 'Când cererea este accesorie acțiunii în desființarea actului juridic patrimonial, nu se taxează separat.'],
   ['Cereri neevaluabile în bani', 'n6', 'Orice altă acțiune sau cerere neevaluabilă în bani', 'art. 27', { k: 'fix', suma: 20 }],
   // --- art. 9, 26: cereri în cursul procesului
   ['Cereri în cursul procesului', 'c1', 'Contestație în anulare', 'art. 26 alin. (1)', { k: 'fix', suma: 100 }],
@@ -77,41 +77,39 @@ const TAXE = [
   ['Executare silită', 'e2', 'Contestație la executare evaluabilă în bani', 'art. 10 alin. (2)', { k: 'contestatie' }],
   ['Executare silită', 'e3', 'Contestație la executare când obiectul executării nu este evaluabil în bani', 'art. 10 alin. (2) teza finală', { k: 'fix', suma: 100 }],
   ['Executare silită', 'e4', 'Contestație la executare privind fondul dreptului (art. 712 alin. (2) C.proc.civ.)', 'art. 10 alin. (3)', { k: 'barem' }],
-  ['Executare silită', 'e5', 'Întoarcerea executării silite', 'art. 10 alin. (4)', { k: 'prag', limita: 5000, sub: 50, peste: 300, eticheta: 'Valoarea bunurilor/sumelor de restituit (lei)' }, 'Excelul folosește 50 lei până la 5.000 lei și 300 lei peste. Verificați art. 10 alin. (4).'],
-  ['Executare silită', 'e6', 'Validarea popririi', 'art. 27', { k: 'fix', suma: 20 }, 'Excelul o încadrează la art. 27 (20 lei). Verificați dacă nu există o reglementare specială.'],
-  // --- art. 15: familie
-  ['Raporturi de familie', 'f1', 'Divorț prin acord (art. 373 lit. a) C.civ.)', 'art. 15 lit. a)', { k: 'fix', suma: 200 }],
-  ['Raporturi de familie', 'f2', 'Divorț din motive temeinice sau după separarea în fapt (art. 373 lit. b) și c) C.civ.)', 'art. 15 lit. b)', { k: 'fix', suma: 100 }],
-  ['Raporturi de familie', 'f3', 'Divorț din cauza stării sănătății (art. 373 lit. d) C.civ.)', 'art. 15 lit. c)', { k: 'fix', suma: 50 }],
-  ['Raporturi de familie', 'f4', 'Despăgubiri sau prestație compensatorie (în procesul de divorț)', 'art. 15 lit. d)', { k: 'fix', suma: 50 }, 'Valoare preluată din Excel (50 lei). Verificați art. 15 lit. d).'],
-  ['Raporturi de familie', 'f5', 'Cereri privind minorul sau locuința familiei, neaccesorii divorțului', 'art. 15 lit. e)', { k: 'fix', suma: 20 }],
-  ['Raporturi de familie', 'f6', 'Orice altă cerere neevaluabilă în bani în materia raporturilor de familie', 'art. 15 lit. f)', { k: 'fix', suma: 20 }],
-  ['Raporturi de familie', 'f7', 'Adopție, ocrotirea minorilor, tutelă, curatelă, asistarea persoanelor cu tulburări psihice', 'art. 29 lit. e)', { k: 'scutit' }],
+  ['Executare silită', 'e5', 'Întoarcerea executării silite', 'art. 10 alin. (4)', { k: 'prag', limita: 5000, sub: 50, peste: 300, eticheta: 'Valoarea cererii (lei)' }],
+  ['Executare silită', 'e6', 'Validarea popririi', 'art. 27', { k: 'fix', suma: 20 }, '', 'Practică neunitară. Opinia majoritară (Curtea de Apel Iași, minuta din 2020): cerere neevaluabilă în bani, 20 lei (art. 27), deoarece creditorul nu își mărește patrimoniul, ci dobândește un nou debitor. Opinia minoritară: taxă la valoarea creanței (art. 3 alin. (1)). ÎCCJ nu s-a pronunțat.'],
+  // --- art. 15: familie (forma dată de Legea nr. 268/2024, în vigoare din 3.11.2024)
+  ['Raporturi de familie', 'f1', 'Divorț prin acord, din motive temeinice sau după separarea în fapt (art. 373 lit. a)–c) C.civ.)', 'art. 15 lit. a)', { k: 'fix', suma: 200 }],
+  ['Raporturi de familie', 'f3', 'Divorț din cauza stării sănătății (art. 373 lit. d) C.civ.)', 'art. 15 lit. b)', { k: 'fix', suma: 50 }],
+  ['Raporturi de familie', 'f4', 'Despăgubiri sau stabilirea prestației compensatorii', 'art. 15 lit. c)', { k: 'fix', suma: 50 }],
+  ['Raporturi de familie', 'f5', 'Cereri privind locuința minorului, autoritatea părintească, pensia de întreținere, legăturile personale, locuința familiei (neaccesorii divorțului)', 'art. 15 lit. d)', { k: 'fix', suma: 20, unitate: 'Număr de cereri' }],
+  ['Raporturi de familie', 'f6', 'Orice altă cerere neevaluabilă în bani în materia raporturilor de familie', 'art. 15 lit. e)', { k: 'fix', suma: 20 }],
+  ['Raporturi de familie', 'f7', 'Adopție, ocrotirea minorilor, tutelă, curatelă, asistarea persoanelor cu tulburări psihice', 'art. 29 alin. (1) lit. e)', { k: 'scutit' }],
   // --- art. 11 lit. a): înțelegerea părților / mediere
   ['Înțelegerea părților / mediere', 'm1', 'A se lua act de înțelegerea părților, inclusiv de acordul de mediere', 'art. 11 lit. a)', { k: 'fix', suma: 20 }],
-  ['Înțelegerea părților / mediere', 'm2', 'Înțelegere/acord de mediere privind transferul proprietății sau al altui drept real', 'art. 11 lit. a) teza a doua', { k: 'barem', jumatate: true, plus: 20 }, 'Excelul calculează 20 lei + jumătate din taxa de la art. 3 alin. (1). Verificați art. 11 lit. a).'],
-  ['Înțelegerea părților / mediere', 'm3', 'Înțelegere/acord de mediere privind partajul (un singur capăt, art. 5 alin. (1))', 'art. 11 lit. a) teza finală', { k: 'procent', p: 3, jumatate: true, plus: 20, eticheta: 'Valoarea masei partajabile (lei)' }, 'Excelul calculează 20 lei + jumătate din taxa de 3%. Verificați art. 11 lit. a).'],
-  ['Înțelegerea părților / mediere', 'm4', 'Înțelegere/acord de mediere privind partajul (mai multe capete, art. 5 alin. (2))', 'art. 11 lit. a) teza finală', { k: 'procent', p: 5, jumatate: true, plus: 20, eticheta: 'Valoarea masei partajabile (lei)' }, 'Formula din Excel e defectă (#REF!). Am aplicat aceeași logică: 20 lei + jumătate din taxa de 5%. Verificați art. 11 lit. a).'],
+  ['Înțelegerea părților / mediere', 'm2', 'Înțelegere/acord de mediere privind transferul proprietății sau al altui drept real asupra unui imobil', 'art. 11 lit. a)', { k: 'barem', jumatate: true, plus: 20, eticheta: 'Valoarea imobilului (lei)' }, '', 'Taxa fixă de 20 lei + 50% din taxa care s-ar fi datorat potrivit art. 3 alin. (1).'],
+  ['Înțelegerea părților / mediere', 'm3', 'Înțelegere/acord de mediere privind partajul', 'art. 11 lit. a)', { k: 'barem', jumatate: 2, plus: 20, eticheta: 'Valoarea masei partajabile (lei)' }, '', 'Taxa fixă de 20 lei + 50% din taxa de partaj (care este, potrivit art. 5, jumătate din taxa de la art. 3 alin. (1)).'],
   // --- art. 6: proceduri speciale
   ['Proceduri speciale', 's1', 'Cerere de valoare redusă', 'art. 6 alin. (1)', { k: 'prag', limita: 2000, sub: 50, peste: 200, eticheta: 'Valoarea cererii (lei)' }],
   ['Proceduri speciale', 's2', 'Ordonanță de plată', 'art. 6 alin. (2)', { k: 'fix', suma: 200 }],
   ['Proceduri speciale', 's3', 'Evacuare – procedura specială (Titlul XI, Cartea a VI-a C.proc.civ.)', 'art. 6 alin. (3)', { k: 'fix', suma: 100 }],
-  ['Proceduri speciale', 's4', 'Ordonanță președințială neevaluabilă în bani', 'art. 6 alin. (4) teza întâi', { k: 'fix', suma: 100 }, 'Valoare preluată din Excel (100 lei). Verificați art. 6 alin. (4).'],
-  ['Proceduri speciale', 's5', 'Ordonanță președințială evaluabilă în bani', 'art. 6 alin. (4) teza finală', { k: 'prag', limita: 2000, sub: 50, peste: 200, eticheta: 'Valoarea (lei)' }, 'Excelul folosește 50 lei până la 2.000 lei și 200 lei peste. Verificați art. 6 alin. (4).'],
+  ['Proceduri speciale', 's4', 'Ordonanță președințială neevaluabilă în bani', 'art. 6 alin. (4)', { k: 'fix', suma: 20 }],
+  ['Proceduri speciale', 's5', 'Ordonanță președințială evaluabilă în bani', 'art. 6 alin. (4)', { k: 'prag', limita: 2000, sub: 50, peste: 200, eticheta: 'Valoarea cererii (lei)' }],
   // --- alte cereri
   ['Alte cereri', 'a1', 'Drepturi de autor și drepturi conexe', 'art. 13 lit. a)', { k: 'fix', suma: 100 }],
   ['Alte cereri', 'a2', 'Calitatea de inventator sau de titular al brevetului', 'art. 13 lit. b)', { k: 'fix', suma: 100 }],
   ['Alte cereri', 'a3', 'Mărci, desene și modele industriale (cereri neevaluabile în bani)', 'art. 13 lit. c)', { k: 'fix', suma: 300 }],
-  ['Alte cereri', 'a4', 'Cereri în procedura insolvenței', 'art. 14 alin. (1)', { k: 'fix', suma: 200 }, 'Excelul trimite la Legea nr. 85/2006, înlocuită de Legea nr. 85/2014. Verificați forma actuală a art. 14.'],
-  ['Alte cereri', 'a5', 'Înregistrări în registrul comerțului', 'art. 14 alin. (2)', { k: 'fix', suma: 100 }, 'Valoare preluată din Excel. Verificați art. 14 alin. (2).'],
+  ['Alte cereri', 'a4', 'Cereri în procedura insolvenței', 'art. 14 alin. (1)', { k: 'fix', suma: 200 }, '', 'Textul art. 14 trimite încă la Legea nr. 85/2006, abrogată și înlocuită de Legea nr. 85/2014.'],
+  ['Alte cereri', 'a5', 'Cereri privind înregistrări în registrul comerțului', 'art. 14 alin. (2)', { k: 'fix', suma: 100 }],
   ['Alte cereri', 'a6', 'Înregistrarea partidelor politice sau modificarea statutului lor', 'art. 12 lit. a)', { k: 'fix', suma: 300 }],
   ['Alte cereri', 'a7', 'Sindicate, patronate (Legea dialogului social nr. 62/2011)', 'art. 12 lit. b)', { k: 'fix', suma: 200 }],
   ['Alte cereri', 'a8', 'Dobândirea personalității juridice de către asociații, fundații, federații', 'art. 12 lit. c)', { k: 'fix', suma: 100 }],
   ['Alte cereri', 'a9', 'Contencios administrativ – anularea actului, recunoașterea dreptului, eliberarea unui înscris', 'art. 16 lit. a)', { k: 'fix', suma: 50 }],
   ['Alte cereri', 'a10', 'Contencios administrativ – cereri patrimoniale (repararea pagubelor)', 'art. 16 lit. b)', { k: 'procentPlafon', p: 10, plafon: 300, eticheta: 'Valoarea pretinsă (lei)' }],
-  ['Alte cereri', 'a11', 'Contestație împotriva deciziei privind conflictele de competență dintre notari', 'art. 18 lit. a)', { k: 'fix', suma: 20 }],
-  ['Alte cereri', 'a12', 'Plângere împotriva refuzului executorului judecătoresc de a-și îndeplini atribuțiile', 'art. 18 lit. b)', { k: 'fix', suma: 20 }],
-  ['Alte cereri', 'a13', 'Supralegalizarea semnăturii și ștampilei executorului judecătoresc', 'art. 18 lit. c)', { k: 'fix', suma: 20 }],
+  ['Alte cereri', 'a11', 'Conflicte de competență între birourile executorilor judecătorești (Legea nr. 188/2000)', 'art. 18 lit. a)', { k: 'fix', suma: 20 }],
+  ['Alte cereri', 'a12', 'Plângere împotriva refuzului executorului judecătoresc de a-și îndeplini atribuțiile (Legea nr. 188/2000)', 'art. 18 lit. b)', { k: 'fix', suma: 20 }],
+  ['Alte cereri', 'a13', 'Supralegalizarea semnăturii și ștampilei executorului judecătoresc (Legea nr. 188/2000)', 'art. 18 lit. c)', { k: 'fix', suma: 20 }],
   ['Alte cereri', 'a14', 'Plângere contravențională (împotriva procesului-verbal)', 'art. 19', { k: 'fix', suma: 20 }],
   ['Alte cereri', 'a15', 'Cereri de carte funciară care nu pun în discuție fondul dreptului', 'art. 20', { k: 'fix', suma: 50 }],
   // --- scutiri (fără cauzele penale)
@@ -124,8 +122,9 @@ const TAXE = [
   ['Scutite de taxă', 'z7', 'Despăgubiri pentru încălcarea art. 2 și 3 din Convenția europeană a drepturilor omului', 'art. 29 alin. (1) lit. j)', { k: 'scutit' }],
   ['Scutite de taxă', 'z8', 'Fondul funciar – cereri formulate de prefect sau primar (Legea nr. 18/1991)', 'art. 29 alin. (2)', { k: 'scutit' }],
   ['Scutite de taxă', 'z9', 'Raporturile de serviciu ale funcționarilor publici', 'art. 29 alin. (4)', { k: 'scutit' }],
+  ['Scutite de taxă', 'z11', 'Divorț și partajul bunurilor comune, cerute de victima infracțiunii de violență în familie', 'art. 29 alin. (6)', { k: 'scutit' }, '', 'Scutire introdusă prin Legea nr. 199/2025 (M.Of. nr. 1106 din 28.11.2025), în vigoare din 1.12.2025.'],
   ['Scutite de taxă', 'z10', 'Alte cereri scutite prin legi speciale', 'art. 29 alin. (1) lit. l)', { k: 'scutit' }],
-].map(([cat, id, label, art, rule, verifica]) => ({ cat, id, label, art, rule, verifica: verifica || '' }));
+].map(([cat, id, label, art, rule, verifica, nota]) => ({ cat, id, label, art, rule, verifica: verifica || '', nota: nota || '' }));
 
 // Ce trebuie introdus pentru fiecare tip de regulă
 function taxaCampuri(t) {
@@ -157,8 +156,8 @@ function taxaCalcul(t, v) {
       if (r.cota) pasi.push(`Baza de calcul: ${r.cota * 100}% din ${lei(val)} = ${lei(baza)}`);
       let x = barem(baza);
       pasi.push(`Barem art. 3 alin. (1): ${baremPasi(baza)} = ${lei(x)}`);
-      if (r.jumatate) { x /= 2; pasi.push(`Jumătate: ${lei(x)}`); }
-      if (r.plus) { pasi.push(`Plus ${lei(r.plus)}: ${lei(x + r.plus)}`); x += r.plus; }
+      for (let k = 0; k < Number(r.jumatate || 0); k++) { x /= 2; pasi.push(`Jumătate: ${lei(x)}`); }
+      if (r.plus) { pasi.push(`Plus taxa fixă de ${lei(r.plus)}: ${lei(x + r.plus)}`); x += r.plus; }
       suma = x;
       break;
     }
@@ -216,7 +215,7 @@ function viewTaxa() {
   const total = TX.cos.reduce((s, x) => s + x.suma, 0);
   const text = taxaText();
   return `
-  <div class="callout warn" style="margin-bottom:14px"><p><b>Verificați întotdeauna rezultatul în textul O.U.G. nr. 80/2013, în forma în vigoare.</b> Regulile sunt preluate din calculatorul Excel „TJT_complex” și verificate cât s-a putut; cele marcate <span class="pill u2">de verificat</span> au formule inconsecvente în Excel sau un text pe care nu l-am putut confirma.</p></div>
+  <div class="callout" style="margin-bottom:14px"><p>Calcul potrivit <b>O.U.G. nr. 80/2013</b>, în forma modificată prin <b>Legea nr. 268/2024</b> (partaj și divorț, în vigoare din 3.11.2024) și <b>Legea nr. 199/2025</b>. Pentru cererile depuse înainte de 3.11.2024 la partaj și divorț se aplicau alte taxe.</p></div>
   <div class="grid-2">
     <div>
       <div class="card">
@@ -233,6 +232,7 @@ function viewTaxa() {
         <span class="muted small">${h(t.cat)} · ${h(t.art)} din O.U.G. nr. 80/2013</span>
         <h2 style="margin:4px 0 10px">${h(t.label)}</h2>
         ${t.verifica ? `<div class="callout warn small" style="margin-bottom:10px"><span class="pill u2">de verificat</span> ${h(t.verifica)}</div>` : ''}
+        ${t.nota ? `<div class="callout small" style="margin-bottom:10px">${h(t.nota)}</div>` : ''}
         ${taxaCampuri(t).map(f => `<label class="field" style="margin-bottom:10px"><span>${h(f.l)}</span><input type="text" inputmode="decimal" data-txv="${f.n}" value="${h(TX.vals[f.n] ?? f.implicit ?? '')}" placeholder="0"></label>`).join('')}
         <div class="calc-result" style="text-transform:none">${rez.scutit ? 'Scutită de taxă' : rez.lipsa ? '—' : lei(rez.suma)}</div>
         <ol class="steps">${rez.pasi.map(p => `<li>${h(p)}</li>`).join('')}</ol>
