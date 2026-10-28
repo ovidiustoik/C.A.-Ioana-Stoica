@@ -421,3 +421,9 @@ dialog.wide { width: min(1180px, calc(100vw - 24px)); }
 .sig-preview.empty { background: var(--surface-2); color: var(--muted); font-size: .9rem; text-align: center; padding: 20px; }
 label.btn input[type=file] { display: none; }
 .field select, .field input, .field textarea { max-width: 100%; }
+.comp { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+.comp h3 { margin: 0 0 8px; font-size: 1rem; }
+.comp dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 12px; margin: 0; font-size: .92rem; }
+.comp dt { font-weight: 700; color: var(--muted, inherit); }
+.comp dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 560px) { .comp dl { grid-template-columns: minmax(0, 1fr); } .comp dd { margin-bottom: 6px; } }

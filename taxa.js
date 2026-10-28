@@ -211,11 +211,13 @@ function viewTaxa() {
   const lista = TAXE.filter(t => !q || norm(t.label + ' ' + t.cat + ' ' + t.art).includes(q));
   const t = TAXE.find(x => x.id === TX.sel) || TAXE[0];
   const rez = taxaCalcul(t, TX.vals);
+  const comp = compCalcul(t, TX.vals);
+  const agregat = compAgregat(TX.cos);
   const cats = [...new Set(lista.map(x => x.cat))];
   const total = TX.cos.reduce((s, x) => s + x.suma, 0);
   const text = taxaText();
   return `
-  <div class="callout" style="margin-bottom:14px"><p>Calcul potrivit <b>O.U.G. nr. 80/2013</b>, în forma modificată prin <b>Legea nr. 268/2024</b> (partaj și divorț, în vigoare din 3.11.2024) și <b>Legea nr. 199/2025</b>. Pentru cererile depuse înainte de 3.11.2024 la partaj și divorț se aplicau alte taxe.</p></div>
+  <div class="callout" style="margin-bottom:14px"><p>Taxa: <b>O.U.G. nr. 80/2013</b>, în forma modificată prin <b>Legea nr. 268/2024</b> (partaj și divorț, în vigoare din 3.11.2024) și <b>Legea nr. 199/2025</b>. Pentru cererile depuse înainte de 3.11.2024 la partaj și divorț se aplicau alte taxe.</p><p>Competența: <b>Codul de procedură civilă</b> republicat (cu Legea nr. 310/2018) și legile speciale indicate. Dacă litigiul are element de extraneitate, competența instanțelor române se verifică mai întâi după Regulamentul (UE) nr. 1215/2012 sau Cartea a VII-a C.proc.civ. Punctele marcate „de verificat” nu au putut fi confirmate din textul în vigoare.</p></div>
   <div class="grid-2">
     <div>
       <div class="card">
@@ -236,13 +238,18 @@ function viewTaxa() {
         ${taxaCampuri(t).map(f => `<label class="field" style="margin-bottom:10px"><span>${h(f.l)}</span><input type="text" inputmode="decimal" data-txv="${f.n}" value="${h(TX.vals[f.n] ?? f.implicit ?? '')}" placeholder="0"></label>`).join('')}
         <div class="calc-result" style="text-transform:none">${rez.scutit ? 'Scutită de taxă' : rez.lipsa ? '—' : lei(rez.suma)}</div>
         <ol class="steps">${rez.pasi.map(p => `<li>${h(p)}</li>`).join('')}</ol>
+        ${compCampuri(t).map(f => f.opt
+          ? `<label class="field" style="margin:12px 0 0"><span>${h(f.l)}</span><select data-txv="${f.n}">${f.opt.map((o, i) => `<option value="${i}" ${String(TX.vals[f.n] ?? 0) === String(i) ? 'selected' : ''}>${h(o)}</option>`).join('')}</select></label>`
+          : `<label class="field" style="margin:12px 0 0"><span>${h(f.l)}</span><input type="text" inputmode="decimal" data-txv="${f.n}" value="${h(TX.vals[f.n] ?? '')}" placeholder="0"></label>`).join('')}
+        ${compHtml(t, comp)}
         <div class="actions"><button class="btn primary" data-act="taxaAdauga">＋ Adaugă la cerere (mai multe capete)</button></div>
       </div>
       <div class="card">
         <div class="card-head"><h2>Cererea – toate capetele</h2>${TX.cos.length ? '<button class="btn sm ghost" data-act="taxaGoleste">Golește</button>' : ''}</div>
-        ${TX.cos.length ? `<ul class="list">${TX.cos.map((x, i) => `<li><span class="grow"><span>${i + 1}. ${h(x.label)}</span><span class="muted small">${h(x.art)}${x.detaliu ? ' · ' + h(x.detaliu) : ''}</span></span><b class="nowrap">${x.scutit ? 'scutită' : lei(x.suma)}</b><button class="icon-btn" data-act="taxaScoate" data-i="${i}" aria-label="Scoate">✕</button></li>`).join('')}</ul>
-          <p style="font-size:1.1rem;margin:10px 0"><b>Total: ${lei(total)}</b></p>
-          <textarea readonly rows="5" style="width:100%;font:inherit;font-size:.9rem;padding:8px;border-radius:9px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink)">${h(text)}</textarea>
+        ${TX.cos.length ? `<ul class="list">${TX.cos.map((x, i) => `<li><span class="grow"><span>${i + 1}. ${h(x.label)}</span><span class="muted small">${h(x.art)}${x.detaliu ? ' · ' + h(x.detaliu) : ''}</span>${x.comp ? `<span class="small">Competență: <b>${h(x.comp.inst || '—')}</b>${x.comp.ter?.ex === true ? ' · teritorial exclusiv' : ''}</span>` : ''}</span><b class="nowrap">${x.scutit ? 'scutită' : lei(x.suma)}</b><button class="icon-btn" data-act="taxaScoate" data-i="${i}" aria-label="Scoate">✕</button></li>`).join('')}</ul>
+          <p style="font-size:1.1rem;margin:10px 0"><b>Total taxă: ${lei(total)}</b></p>
+          ${agregat ? `<div class="comp"><h3>Competența pentru întreaga cerere</h3><ul class="steps">${agregat.map(l => `<li>${h(l)}</li>`).join('')}</ul></div>` : ''}
+          <textarea readonly rows="9" style="width:100%;font:inherit;font-size:.9rem;padding:8px;border-radius:9px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink)">${h(text)}</textarea>
           <div class="actions"><button class="btn" data-act="taxaCopiaza">Copiază textul</button></div>`
           : empty('Adăugați capetele de cerere pentru a obține totalul și textul gata de folosit.')}
       </div>
@@ -254,7 +261,8 @@ function taxaText() {
   if (!TX.cos.length) return '';
   const total = TX.cos.reduce((s, x) => s + x.suma, 0);
   const linii = TX.cos.map((x, i) => `${i + 1}. ${x.label}${x.detaliu ? ' (' + x.detaliu + ')' : ''} – ${x.scutit ? 'scutită' : lei(x.suma)}, potrivit ${x.art} din O.U.G. nr. 80/2013`);
-  return `Taxa judiciară de timbru datorată este în cuantum de ${lei(total)}, după cum urmează:\n${linii.join(';\n')}.`;
+  const comp = compText(TX.cos);
+  return `Taxa judiciară de timbru datorată este în cuantum de ${lei(total)}, după cum urmează:\n${linii.join(';\n')}.${comp ? '\n\n' + comp : ''}`;
 }
 
 function taxaAdauga() {
@@ -263,7 +271,10 @@ function taxaAdauga() {
   const rez = taxaCalcul(t, TX.vals);
   if (rez.lipsa) return toast('Introduceți mai întâi valoarea.');
   const campuri = taxaCampuri(t).filter(f => TX.vals[f.n]);
+  const opt = COMP[t.id]?.opt;
   const detaliu = campuri.map(f => `${f.l.replace(/ \(lei\).*$/, '').replace(/ – opțional$/, '')}: ${f.n === 'numar' ? TX.vals[f.n] : lei(Number(String(TX.vals[f.n]).replace(/\s/g, '').replace(',', '.')) || 0)}`).join(', ');
-  TX.cos.push({ label: t.label, art: t.art, suma: rez.suma, scutit: !!rez.scutit, detaliu });
+  const comp = compCalcul(t, TX.vals);
+  const label = opt ? `${t.label} – ${opt[Math.min(opt.length - 1, Number(TX.vals.co) || 0)].l}` : t.label;
+  TX.cos.push({ label, art: t.art, suma: rez.suma, scutit: !!rez.scutit, detaliu, comp });
   rerender();
 }

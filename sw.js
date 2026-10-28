@@ -1,6 +1,6 @@
 /* Funcționare offline: aplicația se încarcă și fără internet. */
-const CACHE = 'cabinet-stoica-v6';
-const ASSETS = ['./', 'index.html', 'style.css', 'local.js', 'db.js', 'app.js', 'sign.js', 'portal.js', 'taxa.js', 'vendor/pdf-lib.min.js', 'vendor/pdf.min.mjs', 'vendor/pdf.worker.min.mjs', 'icon.svg', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
+const CACHE = 'cabinet-stoica-v7';
+const ASSETS = ['./', 'index.html', 'style.css', 'local.js', 'db.js', 'app.js', 'sign.js', 'portal.js', 'taxa.js', 'competenta.js', 'vendor/pdf-lib.min.js', 'vendor/pdf.min.mjs', 'vendor/pdf.worker.min.mjs', 'icon.svg', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
