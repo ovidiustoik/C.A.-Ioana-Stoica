@@ -45,7 +45,7 @@ document.addEventListener('click', e => {
 });
 
 document.addEventListener('change', e => {
-  if (e.target.dataset.tx === 'sel') { TX.sel = e.target.value; TX.vals = {}; rerender(); }
+  if (e.target.dataset.tx === 'sel') { TX.sel = e.target.value; TX.vals = { f127: TX.vals.f127 }; rerender(); }
 });
 
 document.addEventListener('toggle', e => { if (e.target.id === 'grila') GR.deschis = e.target.open; }, true);

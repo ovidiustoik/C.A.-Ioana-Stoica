@@ -428,3 +428,4 @@ label.btn input[type=file] { display: none; }
 .comp dd { margin: 0; overflow-wrap: anywhere; }
 @media (max-width: 560px) { .comp dl { grid-template-columns: minmax(0, 1fr); } .comp dd { margin-bottom: 6px; } }
 .grila .actions .btn, .card .actions .btn { white-space: normal; max-width: 100%; text-align: center; }
+pre.minuta { white-space: pre-wrap; font: inherit; font-size: .88rem; background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; margin: 6px 0; user-select: all; }

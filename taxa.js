@@ -311,6 +311,7 @@ function viewTaxa() {
         ${lista.length ? '' : empty('Niciun obiect nu se potrivește căutării.')}
       </div>
       ${typeof grilaHtml === 'function' ? grilaHtml() : ''}
+      ${typeof compRegimHtml === 'function' ? compRegimHtml() : ''}
       <details class="card"><summary><h2 style="display:inline">Reguli de reținut</h2></summary><ul class="steps" style="margin-top:10px">${TAXA_REGULI.map(r => `<li>${h(r)}</li>`).join('')}</ul></details>
     </div>
     <div>

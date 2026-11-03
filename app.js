@@ -1473,7 +1473,7 @@ document.addEventListener('change', async e => {
     const t = byId('tasks', el.dataset.note);
     if (t && t.note !== el.value) { await save('tasks', { ...t, note: el.value }); toast('Notă salvată.'); }
   } else if (el.dataset.tx === 'sel') {
-    TX.sel = el.value; TX.vals = {};
+    TX.sel = el.value; TX.vals = { f127: TX.vals.f127 };
     rerender();
   } else if (el.dataset.filter) {
     setPath(el.dataset.filter, el.value);
