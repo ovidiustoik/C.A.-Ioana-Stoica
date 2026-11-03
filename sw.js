@@ -1,13 +1,13 @@
 /* Funcționare offline: aplicația se încarcă și fără internet. */
-const CACHE = 'cabinet-stoica-v7';
-const ASSETS = ['./', 'index.html', 'style.css', 'local.js', 'db.js', 'app.js', 'sign.js', 'portal.js', 'taxa.js', 'competenta.js', 'vendor/pdf-lib.min.js', 'vendor/pdf.min.mjs', 'vendor/pdf.worker.min.mjs', 'icon.svg', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
+const CACHE = 'cabinet-stoica-v8';
+const ASSETS = ['./', 'index.html', 'style.css', 'local.js', 'db.js', 'app.js', 'sign.js', 'portal.js', 'taxa.js', 'competenta.js', 'grila.js', 'vendor/pdf-lib.min.js', 'vendor/pdf.min.mjs', 'vendor/pdf.worker.min.mjs', 'icon.svg', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k.startsWith('cabinet-stoica-') && k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
 
 // Întâi rețeaua (pentru actualizări), apoi copia locală dacă nu există internet.

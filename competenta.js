@@ -40,6 +40,12 @@ const COMP = {
   v3: { m: VAL, t: T_IMOBIL_COND, n: N_EXCEPTII_J + ' ' + N_VALOARE },
   v4: { m: VAL, t: { ...T_GEN, r: 'Acțiune personală imobiliară: instanța domiciliului sau sediului pârâtului', alt: 'La alegerea reclamantului, și instanța locului prevăzut în contract pentru executarea obligației (art. 113 alin. (1) pct. 3). Dacă locul executării nu rezultă din contract, rămâne domiciliul pârâtului.' }, n: 'Practica ÎCCJ (decizii din 2015 care invocă RIL nr. 8/2013) califică acțiunea drept personală imobiliară, deci art. 117 nu se aplică.', v: 'Valoarea pentru competență: valoarea obiectului contractului (art. 101) sau valoarea impozabilă a imobilului (art. 104) – verificați practica instanței.' },
   v5: { m: VAL, t: { ...T_GEN, alt: ALT_DELICT }, n: 'Daunele morale altele decât cele întemeiate pe art. 253 C.civ. se raportează la valoarea pretinsă. ' + N_VALOARE },
+  v7: {
+    opt: [
+      { l: 'Revendicare sau alt drept real asupra imobilului', val: true, t: T_IMOBIL },
+      { l: 'Uzucapiune', inst: 'Judecătoria', grad: 1, temei: `art. 94 pct. 1 lit. j²) ${CPC} – uzucapiunea, indiferent de valoare`, t: T_IMOBIL },
+    ],
+  },
   v6: { m: VAL, t: T_IMOBIL, n: 'Grănițuirea singură este a judecătoriei (art. 94 pct. 1 lit. f)); revendicarea se raportează la valoarea impozabilă a porțiunii (art. 104). Capetele fiind strâns legate, le judecă instanța mai mare în grad (art. 99 alin. (2)).' },
 
   r1: { m: J('g'), t: { r: 'Imobil: instanța locului imobilului (art. 117 alin. (3), prin asemănare). Bun mobil: domiciliul pârâtului (art. 107).', temei: `art. 107, art. 117 ${CPC}`, ex: 'cond' } },
@@ -59,6 +65,7 @@ const COMP = {
   n2: { m: TRIB(), t: T_GEN, n: 'Excepție: când legea o dă judecătoriei – stare civilă (art. 94 pct. 1 lit. b)), cereri date instanței de tutelă și de familie (lit. a)).' },
   n3: { m: TRIB(), t: T_GEN, n: 'Excepție: când legea o dă judecătoriei – stare civilă (art. 94 pct. 1 lit. b)), cereri date instanței de tutelă și de familie (lit. a)).' },
   n4: { m: VAL, vl: 'Chiria sau arenda anuală (lei) – pentru competență', t: { ...T_GEN, alt: 'Pentru imobil: și instanța locului unde se află imobilul (art. 113 alin. (1) pct. 4), la alegerea reclamantului.' }, n: 'Valoarea pentru competență = chiria sau arenda anuală (art. 101 alin. (3)). Dacă se cere evacuarea – judecătoria (art. 94 pct. 1 lit. d)).' },
+  n7: { m: VAL, t: { ...T_GEN, alt: ALT_DELICT }, n: 'Taxa este fixă (100 lei), dar competența se stabilește după valoarea pretențiilor (art. 94 pct. 1 lit. k) / art. 95 pct. 1).' },
   n5: { m: VAL, t: T_GEN, n: N_VALOARE },
   n6: { m: TRIB(), t: T_GEN, n: 'Excepții: obligațiile de a face sau de a nu face neevaluabile în bani – judecătoria (art. 94 pct. 1 lit. h)); orice alte cereri date prin lege judecătoriei (art. 94).' },
 
@@ -74,6 +81,13 @@ const COMP = {
   c10: { m: LA('Instanța învestită cu cauza (dosar în curs) sau instanța care a pronunțat hotărârea dispărută', `art. 1054–1056 ${CPC}`), t: T_ACELASI('Aceeași instanță'), n: 'Numerotarea diferă între forma inițială (art. 1053–1055) și cea republicată.' },
   c11: { m: LA('Instanța competentă să judece fondul cauzei (de regulă, după valoarea creanței)', `art. 953 și urm. (sechestru asigurător), art. 970 și urm. (poprire asigurătorie) ${CPC}`), t: T_ACELASI('Instanța sesizată cu acțiunea de fond'), v: 'Regula reiese din practică (cererea urmează acțiunea de fond); textul exact – de verificat.' },
 
+  c12: { m: LA('Contestația: instanța sesizată cu procesul; plângerea împotriva încheierii: instanța ierarhic superioară', `art. 522–526 ${CPC}`), t: T_ACELASI('Instanța sesizată cu procesul'), v: 'Completul care soluționează contestația și instanța care judecă plângerea – de verificat în textul art. 524–525.' },
+  c13: { m: LA('Instanța competentă să judece fondul cauzei', `art. 953 și urm. ${CPC}`), t: T_ACELASI('Instanța sesizată cu acțiunea de fond'), v: 'Regula reiese din practică (cererea urmează acțiunea de fond); textul exact – de verificat.' },
+  c14: { m: LA('Instanța la care se află dosarul (eliberează grefa)', ''), t: T_ACELASI('Aceeași instanță') },
+  c15: { m: LA('Instanța la care se află dosarul (eliberează grefa)', ''), t: T_ACELASI('Aceeași instanță') },
+  c16: { m: LA('Instanța din ale cărei evidențe sau arhivă rezultă faptele', ''), t: T_ACELASI('Aceeași instanță') },
+  c17: { m: LA('Instanța care a pronunțat hotărârea (în arhiva căreia se află dosarul)', ''), t: T_ACELASI('Aceeași instanță') },
+  e7: { m: LA('Judecătoria – instanța de executare', `art. 906 alin. (4), art. 651 ${CPC}`, 1), t: T_EXEC },
   e1: { m: LA('Instanța de executare sesizată cu contestația (judecătoria); pentru executarea provizorie a unei hotărâri – instanța de apel', `art. 719, art. 651 ${CPC}; art. 450 (executarea provizorie); ÎCCJ – Decizia nr. 27/2021`, 1), t: T_EXEC },
   e2: { m: LA('Judecătoria – instanța de executare', `art. 714 alin. (1), art. 651 ${CPC}`, 1), t: T_EXEC, n: 'Contestația privind lămurirea titlului emis de o instanță se poate face la instanța care a pronunțat hotărârea (art. 714). Executarea silită fiscală are reguli proprii (Legea nr. 207/2015, art. 260 și urm.).' },
   e3: { m: LA('Judecătoria – instanța de executare', `art. 714 alin. (1), art. 651 ${CPC}`, 1), t: T_EXEC, n: 'Executarea silită fiscală are reguli proprii (Legea nr. 207/2015, art. 260 și urm.).' },
@@ -99,6 +113,7 @@ const COMP = {
 
   s1: { m: LA('Judecătoria', `art. 1028 ${CPC}`, 1), t: { ...T_GEN, alt: 'Se aplică regulile generale, inclusiv competența alternativă (art. 113, art. 116).' } },
   s2: { m: VAL, extra: `art. 1015 ${CPC} – instanța competentă să judece fondul cauzei în primă instanță`, t: { ...T_GEN, alt: ALT_CONTRACT } },
+  s6: { m: LA('—', 'Regulamentele (CE) nr. 1896/2006 și nr. 861/2007; Cartea a VII-a C.proc.civ.'), t: T_ACELASI('—'), v: 'Instanța care judecă opoziția la somația europeană, respectiv reexaminarea în procedura europeană cu valoare redusă – de verificat în normele naționale de punere în aplicare.' },
   s3: { m: LA('Judecătoria, indiferent de valoarea imobilului', `art. 94 pct. 1 lit. d), art. 1036 ${CPC}`, 1), t: { r: 'Judecătoria în circumscripția căreia se află imobilul, chiar dacă locatarul l-a părăsit sau contractul a încetat', temei: `art. 1036 ${CPC}`, ex: true } },
   s4: { m: LA('Instanța competentă să judece fondul în primă instanță', `art. 997 alin. (1) ${CPC}`), t: { ...T_GEN, r: 'Potrivit regulilor generale de competență teritorială', temei: `art. 107 și urm. ${CPC}; ÎCCJ – Decizia nr. 27/2020` } },
   s5: { m: VAL, extra: `art. 997 alin. (1) ${CPC} – instanța competentă să judece fondul`, t: { ...T_GEN, r: 'Potrivit regulilor generale de competență teritorială', temei: `art. 107 și urm. ${CPC}; ÎCCJ – Decizia nr. 27/2020` } },
@@ -130,6 +145,29 @@ const COMP = {
   a14: { g: 'Mai întâi organul constatator; instanța – pe calea plângerii', m: LA('Judecătoria', 'art. 32 O.G. nr. 2/2001', 1), t: { r: 'Judecătoria în circumscripția căreia s-a săvârșit contravenția sau, la alegere, cea a domiciliului/sediului contravenientului; la contravențiile privind circulația pe drumurile publice – numai judecătoria locului săvârșirii (O.U.G. nr. 195/2002)', temei: 'art. 32 O.G. nr. 2/2001', ex: 'spec' } },
   a15: { g: 'Mai întâi registratorul de carte funciară (OCPI); instanța – pe calea plângerii', m: LA('Judecătoria', 'art. 31 Legea nr. 7/1996', 1), t: { r: 'Judecătoria în circumscripția căreia se află imobilul; plângerea se depune la biroul de cadastru și publicitate imobiliară, în 15 zile de la comunicare', temei: 'art. 31 Legea nr. 7/1996', ex: true } },
 
+  a16: { m: LA('—', 'Legea nr. 36/1995'), t: T_ACELASI('—'), v: 'Instanța competentă pentru contestația împotriva deciziei de soluționare a conflictului de competență dintre notari – de verificat în Legea nr. 36/1995.' },
+  a17: { m: LA('Judecătoria în circumscripția căreia își are sediul biroul notarial', 'Legea nr. 36/1995', 1), t: { r: 'Judecătoria sediului biroului notarial', temei: 'Legea nr. 36/1995', ex: 'spec' }, v: 'Articolul exact din Legea nr. 36/1995 și termenul plângerii – de verificat.' },
+  a18: { m: LA('Judecătoria (judecătorul delegat)', `art. 94 pct. 1 lit. c) ${CPC}; Legea nr. 196/2018`, 1), t: T_ACELASI('—'), v: 'Judecătoria competentă teritorial și calea de atac pentru înregistrarea asociației de proprietari – de verificat în Legea nr. 196/2018.' },
+  a19: { m: LA('Curtea de apel în circumscripția căreia a avut loc arbitrajul', `art. 610 ${CPC}`, 3), t: { r: 'Curtea de apel a locului arbitrajului', temei: `art. 610 ${CPC}`, ex: 'spec' }, v: 'Numărul articolului (Cartea a IV-a C.proc.civ. – acțiunea în anulare) – de verificat.' },
+  k1: { m: LA('Instanța ierarhic superioară: tribunalul pentru hotărârile judecătoriei, curtea de apel pentru hotărârile tribunalului', `art. 95 pct. 2, art. 96 pct. 2 ${CPC}`), t: T_ACELASI('Apelul se depune la instanța a cărei hotărâre se atacă') },
+  k2: { m: LA('Instanța ierarhic superioară: tribunalul pentru hotărârile judecătoriei, curtea de apel pentru hotărârile tribunalului', `art. 95 pct. 2, art. 96 pct. 2 ${CPC}`), t: T_ACELASI('Apelul se depune la instanța a cărei hotărâre se atacă') },
+  k3: { m: LA('Instanța de recurs: curtea de apel sau ÎCCJ, după caz (tribunalul – pentru recursurile date de lege în competența sa)', `art. 95 pct. 3, art. 96 pct. 3, art. 97 pct. 1 ${CPC}`), t: T_ACELASI('Recursul se depune la instanța a cărei hotărâre se atacă'), v: 'Verificați dacă hotărârea este supusă recursului (excepțiile de la art. 483 C.proc.civ.).' },
+  k4: { m: LA('Instanța de recurs: curtea de apel sau ÎCCJ, după caz', `art. 96 pct. 3, art. 97 pct. 1 ${CPC}`), t: T_ACELASI('Recursul se depune la instanța a cărei hotărâre se atacă'), v: 'Verificați dacă hotărârea este supusă recursului (excepțiile de la art. 483 C.proc.civ.).' },
+  k5: { m: LA('Instanța de recurs: curtea de apel sau ÎCCJ, după caz', `art. 96 pct. 3, art. 97 pct. 1 ${CPC}`), t: T_ACELASI('Recursul se depune la instanța a cărei hotărâre se atacă'), v: 'Verificați dacă hotărârea este supusă recursului (excepțiile de la art. 483 C.proc.civ.).' },
+  k6: { m: LA('Instanța de recurs: curtea de apel sau ÎCCJ, după caz', `art. 96 pct. 3, art. 97 pct. 1 ${CPC}`), t: T_ACELASI('Recursul se depune la instanța a cărei hotărâre se atacă'), v: 'Verificați dacă hotărârea este supusă recursului (excepțiile de la art. 483 C.proc.civ.).' },
+  k7: { m: LA('Instanța competentă să judece calea de atac (de regulă, instanța ierarhic superioară)', ''), t: T_ACELASI('Calea de atac se depune la instanța a cărei hotărâre se atacă') },
+  k8: { m: LA('Instanța competentă să judece calea de atac (de regulă, instanța ierarhic superioară)', ''), t: T_ACELASI('Calea de atac se depune la instanța a cărei hotărâre se atacă') },
+  k9: { m: LA('Instanța competentă să judece calea de atac (de regulă, instanța ierarhic superioară)', ''), t: T_ACELASI('Calea de atac se depune la instanța a cărei hotărâre se atacă') },
+  k10: { m: LA('Instanța competentă să judece calea de atac (de regulă, instanța ierarhic superioară)', ''), t: T_ACELASI('Calea de atac se depune la instanța a cărei hotărâre se atacă') },
+  x1: { m: LA('Instanța care judecă sau a judecat cauza', ''), t: T_ACELASI('Aceeași instanță') },
+  x2: { m: LA('Aceeași instanță, alt complet, în camera de consiliu, fără citare', 'art. 39 alin. (1)–(2) O.U.G. nr. 80/2013'), t: T_ACELASI('Aceeași instanță') },
+  x3: { m: LA('Instanța competentă să judece cauza; pentru o cerere incidentală – instanța sesizată cu cererea principală', 'O.U.G. nr. 51/2008'), t: T_ACELASI('Instanța sesizată cu cauza'), n: 'Reexaminarea încheierii de respingere: 5 zile de la comunicare, alt complet, camera de consiliu (plan de seminar INM).' },
+  x4: { m: LA('Aceeași instanță, alt complet, în camera de consiliu', 'art. 43 alin. (5) O.U.G. nr. 80/2013'), t: T_ACELASI('Aceeași instanță') },
+  x5: { m: LA('Instanța care judecă acțiunea principală (cerere accesorie)', `art. 123 ${CPC}`), t: T_ACELASI('Instanța sesizată cu acțiunea principală') },
+  z12: { m: LA('Potrivit obiectului cererii', ''), t: T_ACELASI('Potrivit obiectului cererii'), n: 'Scutirea privește persoana care formulează cererea; competența se stabilește după obiectul concret – alegeți și obiectul cererii.' },
+  z13: { m: LA('Potrivit obiectului cererii', ''), t: T_ACELASI('Potrivit obiectului cererii'), n: 'Competența se stabilește după obiectul concret al cererii (de regulă, legea specială privind drepturile foștilor deținuți politici).' },
+  z14: { m: LA('Tribunalul', 'Legea nr. 31/1990', 2), t: T_ACELASI('Tribunalul sediului societății'), v: 'Articolul din Legea nr. 31/1990 și instanța competentă teritorial – de verificat.' },
+  z15: { m: LA('Potrivit obiectului cererii', ''), t: T_ACELASI('Potrivit obiectului cererii'), n: 'Scutire subiectivă (art. 30); competența se stabilește după obiectul concret al cererii.' },
   z1: { m: LA('Tribunalul (litigii de asigurări sociale)', 'Legea nr. 360/2023', 2), t: { r: 'Instanța domiciliului reclamantului', temei: 'art. 130 Legea nr. 360/2023', ex: 'spec' } },
   z2: { m: LA('—', ''), t: T_ACELASI('—'), v: 'Obiect eterogen: drepturile de asigurări sociale (ex. ajutorul de șomaj) – tribunalul; actele autorităților (ajutor social, alocații, încadrarea în grad de handicap) – contencios administrativ (Legea nr. 554/2004). Alegeți obiectul concret și verificați legea specială.' },
   z3: {
@@ -170,6 +208,7 @@ function compCalcul(t, v) {
     else if (val <= PRAG_JUD) Object.assign(out, { inst: 'Judecătoria', grad: 1, temei: `art. 94 pct. 1 lit. k) ${CPC} – cereri evaluabile în bani de până la 200.000 lei inclusiv${extra}` });
     else Object.assign(out, { inst: 'Tribunalul', grad: 2, temei: `art. 95 pct. 1 ${CPC} – cereri evaluabile în bani de peste 200.000 lei${extra}` });
   } else if (m) Object.assign(out, { inst: m.inst, grad: m.grad || 0, temei: m.temei });
+  if (typeof taxaGrila === 'function' && taxaGrila(t, v)) out.notes.unshift('Competența se raportează la valoarea impozabilă (art. 104 C.proc.civ.), chiar dacă taxa se calculează după grila notarială [art. 31 alin. (3) O.U.G. nr. 80/2013].');
   return out;
 }
 
@@ -217,7 +256,7 @@ function compAgregat(cos) {
     if (!diferite) linii.push(`Competența materială: ${NUME[max]} pentru ${cuGrad.length === items.length ? 'toate capetele' : 'capetele cu instanță determinată'}.`);
     else linii.push(`Capetele țin de instanțe de grad diferit. Dacă sunt întemeiate pe un titlu comun ori pe aceeași cauză sau sunt în strânsă legătură, se judecă toate de ${DE[max]} – instanța mai mare în grad (art. 99 alin. (2) ${CPC}); dacă au cauze diferite, competența se stabilește pentru fiecare capăt în parte (art. 99 alin. (1)).`);
   }
-  linii.push(`Cererile accesorii, adiționale și incidentale se judecă de instanța competentă pentru cererea principală (art. 123 ${CPC}).`);
+  linii.push(`Cererile accesorii, adiționale și incidentale se judecă de instanța competentă pentru cererea principală (art. 123 ${CPC}). Pentru competență contează doar capătul principal, fără accesorii (art. 98 alin. (2)), deși taxa se datorează pentru fiecare capăt (art. 34 alin. (1) O.U.G. nr. 80/2013).`);
   if (faraGrad.length) linii.push(`Instanța se stabilește după regula proprie pentru: ${faraGrad.map(x => x.label).join('; ')}.`);
   const excl = items.filter(x => x.comp.ter && x.comp.ter.ex === true);
   const cond = items.filter(x => x.comp.ter && x.comp.ter.ex === 'cond');

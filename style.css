@@ -427,3 +427,4 @@ label.btn input[type=file] { display: none; }
 .comp dt { font-weight: 700; color: var(--muted, inherit); }
 .comp dd { margin: 0; overflow-wrap: anywhere; }
 @media (max-width: 560px) { .comp dl { grid-template-columns: minmax(0, 1fr); } .comp dd { margin-bottom: 6px; } }
+.grila .actions .btn, .card .actions .btn { white-space: normal; max-width: 100%; text-align: center; }

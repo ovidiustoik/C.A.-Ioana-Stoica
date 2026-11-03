@@ -1241,6 +1241,9 @@ const ACT = {
   portalTest: () => portalTest(),
   taxaAdauga: () => taxaAdauga(),
   taxaGoleste: () => { TX.cos = []; rerender(); },
+  grilaAdauga: () => grilaAdauga(),
+  grilaScoate: d => { GR.lista.splice(Number(d.i), 1); rerender(); },
+  grilaFoloseste: () => grilaFoloseste(),
   taxaScoate: d => { TX.cos.splice(Number(d.i), 1); rerender(); },
   taxaCopiaza: async () => {
     try { await navigator.clipboard.writeText(taxaText()); toast('Text copiat.'); } catch { toast('Selectați textul și copiați-l cu Ctrl+C.'); }
@@ -1492,11 +1495,15 @@ document.addEventListener('change', async e => {
   }
 });
 
+// starea panoului „Grila notarială” se păstrează la redesenare
+document.addEventListener('toggle', e => { if (e.target.id === 'grila') GR.deschis = e.target.open; }, true);
+
 document.addEventListener('input', e => {
-  const tv = e.target.dataset?.txv || (e.target.dataset?.tx === 'q' ? 'q' : null);
-  if (tv) {
-    if (tv === 'q') TX.q = e.target.value; else TX.vals[tv] = e.target.value;
-    const pos = e.target.selectionStart, sel = tv === 'q' ? '[data-tx="q"]' : `[data-txv="${tv}"]`;
+  const tv = e.target.dataset?.txv || (e.target.dataset?.tx === 'q' ? 'q' : null), gv = e.target.dataset?.grv;
+  if (tv || gv) {
+    const val = e.target.type === 'checkbox' ? (e.target.checked ? '1' : '') : e.target.value;
+    if (gv) grilaSet(gv, val); else if (tv === 'q') TX.q = val; else TX.vals[tv] = val;
+    const pos = e.target.selectionStart, sel = gv ? `[data-grv="${gv}"]` : tv === 'q' ? '[data-tx="q"]' : `[data-txv="${tv}"]`;
     rerender();
     const again = $(sel);
     if (again) { again.focus(); try { again.setSelectionRange(pos, pos); } catch { /* câmp fără cursor */ } }
