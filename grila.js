@@ -150,6 +150,7 @@ function grilaHtml() {
   const total = GR.lista.reduce((s, x) => s + x.valoare, 0);
   return `<details class="card grila" ${GR.deschis ? 'open' : ''} id="grila">
     <summary><h2 style="display:inline">Grila notarială – Curtea de Argeș 2026</h2></summary>
+    <div style="margin-top:10px">${avertismentJurist('Valorile după grilă')}</div>
     <p class="muted small" style="margin:8px 0">Se folosește pentru taxă numai dacă valoarea impozabilă a imobilului este contestată sau apreciată de instanță ca vădit derizorie [art. 31 alin. (3) O.U.G. nr. 80/2013]. Competența rămâne raportată la valoarea impozabilă (art. 104 C.proc.civ.). Grila acoperă numai circumscripția Judecătoriei Curtea de Argeș; zonele A–D se stabilesc după nomenclatorul de străzi al grilei.</p>
     ${gFld('Ce evaluați', gSel('tip', Object.entries(G_TIPURI), GR.tip))}
     ${grilaCampuri()}

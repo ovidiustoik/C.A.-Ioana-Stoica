@@ -94,6 +94,7 @@ function viewCautiune() {
   const t = CAUT_TIPURI[CA.tip], r = cautCalcul(), v = CA.v;
   const text = cautText(r);
   return `
+  ${avertismentJurist('Cauțiunea și explicațiile')}
   <div class="callout" style="margin-bottom:14px"><p>Calcul după <b>art. 719 alin. (2)–(3) C.proc.civ.</b> (aplicabil și suspendării în recurs, contestație în anulare și revizuire – art. 484, 507, 512) și după <b>art. 953</b> pentru măsurile asigurătorii. Punctele marcate „de verificat” nu au putut fi confirmate din textul în vigoare.</p></div>
   <div class="grid-2">
     <div class="card">

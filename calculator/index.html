@@ -447,6 +447,7 @@ pre.minuta { white-space: pre-wrap; font: inherit; font-size: .88rem; background
 .calc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 14px; }
 .calc-tabs a { padding: 8px 14px; border-radius: 99px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; font-weight: 600; font-size: .9rem; }
 .calc-tabs a.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.avertisment { margin-bottom: 14px; }
 
 .calc-top { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--surface); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 5; }
 .calc-top strong { display: block; font-size: 1.1rem; }
@@ -465,7 +466,7 @@ pre.minuta { white-space: pre-wrap; font: inherit; font-size: .88rem; background
     <div id="nou" class="callout warn" hidden></div>
     <div id="view"></div>
   </main>
-  <footer class="calc-foot">Instrument de lucru: verificați întotdeauna rezultatul cu textul legal în vigoare și cu practica instanței. Nu se salvează și nu se trimit date. Versiunea <span id="versiune"></span>.</footer>
+  <footer class="calc-foot"><b>Calculatoarele pot oferi soluții eronate – rezultatele necesită verificarea finală de către un jurist.</b> Instrument de lucru: verificați întotdeauna rezultatul cu textul legal în vigoare și cu practica instanței. Nu se salvează și nu se trimit date. Versiunea <span id="versiune"></span>.</footer>
   <div id="toast" role="status" aria-live="polite"></div>
 <script>
 'use strict';
@@ -739,6 +740,9 @@ function taxaCalcul(t, v) {
 }
 
 /* ---------- pagina ---------- */
+// Avertisment afișat în fiecare calculator (taxă, competență, grilă, cauțiune, ajutor public judiciar, termene)
+const avertismentJurist = (ce = 'Rezultatele') => `<div class="callout danger avertisment" role="note"><b>Atenție:</b> ${ce} sunt calculate automat și pot fi eronate. Necesită verificarea finală de către un jurist, pe baza textului legal în vigoare și a practicii instanței.</div>`;
+
 const taxaTemei = t => (/O\.U\.G\.|RIL|Legea/.test(t.art) ? t.art : `${t.art} din O.U.G. nr. 80/2013`);
 const taxaSuma = x => (x.netaxabil ? 'nu se taxează' : x.scutit ? 'scutită' : lei(x.suma));
 
@@ -769,6 +773,7 @@ function viewTaxa() {
   const total = TX.cos.reduce((s, x) => s + x.suma, 0);
   const text = taxaText();
   return `
+  ${avertismentJurist('Taxa și competența')}
   <div class="callout" style="margin-bottom:14px"><p>Taxa: <b>O.U.G. nr. 80/2013</b>, în forma modificată prin <b>Legea nr. 268/2024</b> (partaj și divorț, în vigoare din 3.11.2024) și <b>Legea nr. 199/2025</b>. Pentru cererile depuse înainte de 3.11.2024 la partaj și divorț se aplicau alte taxe.</p><p>Competența: <b>Codul de procedură civilă</b> republicat (cu Legea nr. 310/2018) și legile speciale indicate. Dacă litigiul are element de extraneitate, competența instanțelor române se verifică mai întâi după Regulamentul (UE) nr. 1215/2012 sau Cartea a VII-a C.proc.civ. Punctele marcate „de verificat” nu au putut fi confirmate din textul în vigoare.</p></div>
   <div class="grid-2">
     <div>
@@ -1337,6 +1342,7 @@ function grilaHtml() {
   const total = GR.lista.reduce((s, x) => s + x.valoare, 0);
   return `<details class="card grila" ${GR.deschis ? 'open' : ''} id="grila">
     <summary><h2 style="display:inline">Grila notarială – Curtea de Argeș 2026</h2></summary>
+    <div style="margin-top:10px">${avertismentJurist('Valorile după grilă')}</div>
     <p class="muted small" style="margin:8px 0">Se folosește pentru taxă numai dacă valoarea impozabilă a imobilului este contestată sau apreciată de instanță ca vădit derizorie [art. 31 alin. (3) O.U.G. nr. 80/2013]. Competența rămâne raportată la valoarea impozabilă (art. 104 C.proc.civ.). Grila acoperă numai circumscripția Judecătoriei Curtea de Argeș; zonele A–D se stabilesc după nomenclatorul de străzi al grilei.</p>
     ${gFld('Ce evaluați', gSel('tip', Object.entries(G_TIPURI), GR.tip))}
     ${grilaCampuri()}
@@ -1474,6 +1480,7 @@ function viewCautiune() {
   const t = CAUT_TIPURI[CA.tip], r = cautCalcul(), v = CA.v;
   const text = cautText(r);
   return `
+  ${avertismentJurist('Cauțiunea și explicațiile')}
   <div class="callout" style="margin-bottom:14px"><p>Calcul după <b>art. 719 alin. (2)–(3) C.proc.civ.</b> (aplicabil și suspendării în recurs, contestație în anulare și revizuire – art. 484, 507, 512) și după <b>art. 953</b> pentru măsurile asigurătorii. Punctele marcate „de verificat” nu au putut fi confirmate din textul în vigoare.</p></div>
   <div class="grid-2">
     <div class="card">
@@ -1647,6 +1654,7 @@ function viewApj() {
   const text = apjText(r);
   const lunaVenit = r.mediu;
   return `
+  ${avertismentJurist('Încadrarea și propunerea de dispozitiv')}
   <div class="callout" style="margin-bottom:14px"><p>Verificare după <b>O.U.G. nr. 51/2008</b> (persoane fizice), cu pragurile din <b>Legea nr. 31/2023</b>, și după <b>art. 42–44 O.U.G. nr. 80/2013</b> (persoane juridice). Rezultatul este orientativ: aprecierea finală aparține instanței. Punctele marcate „de verificat” nu au putut fi confirmate din textul în vigoare.</p></div>
   <div class="grid-2">
     <div>
@@ -1726,7 +1734,7 @@ function apjPreiaTaxa() { AP.v.co_taxa = String(TX.cos.reduce((s, x) => s + x.su
 'use strict';
 /* Aplicația separată „Taxă de timbru & competență”: aceeași logică ca în aplicația cabinetului
    (taxa.js, competenta.js, grila.js), fără date despre dosare sau clienți. */
-const VERSIUNE = '2026.11.17';
+const VERSIUNE = '2026.11.17.1';
 const PAGINA = 'https://ovidiustoik.github.io/C.A.-Ioana-Stoica/calculator/';
 
 const $ = (s, r = document) => r.querySelector(s);

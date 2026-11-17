@@ -139,6 +139,7 @@ function viewApj() {
   const text = apjText(r);
   const lunaVenit = r.mediu;
   return `
+  ${avertismentJurist('Încadrarea și propunerea de dispozitiv')}
   <div class="callout" style="margin-bottom:14px"><p>Verificare după <b>O.U.G. nr. 51/2008</b> (persoane fizice), cu pragurile din <b>Legea nr. 31/2023</b>, și după <b>art. 42–44 O.U.G. nr. 80/2013</b> (persoane juridice). Rezultatul este orientativ: aprecierea finală aparține instanței. Punctele marcate „de verificat” nu au putut fi confirmate din textul în vigoare.</p></div>
   <div class="grid-2">
     <div>

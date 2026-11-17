@@ -1050,6 +1050,7 @@ function viewTermCalc() {
   const y = new Date().getFullYear();
   const hol = [...holidays(y).entries()].sort();
   return `
+  ${avertismentJurist('Termenele')}
   <div class="grid-2">
     <div>
       <div class="card">

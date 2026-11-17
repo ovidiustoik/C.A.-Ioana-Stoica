@@ -269,6 +269,9 @@ function taxaCalcul(t, v) {
 }
 
 /* ---------- pagina ---------- */
+// Avertisment afișat în fiecare calculator (taxă, competență, grilă, cauțiune, ajutor public judiciar, termene)
+const avertismentJurist = (ce = 'Rezultatele') => `<div class="callout danger avertisment" role="note"><b>Atenție:</b> ${ce} sunt calculate automat și pot fi eronate. Necesită verificarea finală de către un jurist, pe baza textului legal în vigoare și a practicii instanței.</div>`;
+
 const taxaTemei = t => (/O\.U\.G\.|RIL|Legea/.test(t.art) ? t.art : `${t.art} din O.U.G. nr. 80/2013`);
 const taxaSuma = x => (x.netaxabil ? 'nu se taxează' : x.scutit ? 'scutită' : lei(x.suma));
 
@@ -299,6 +302,7 @@ function viewTaxa() {
   const total = TX.cos.reduce((s, x) => s + x.suma, 0);
   const text = taxaText();
   return `
+  ${avertismentJurist('Taxa și competența')}
   <div class="callout" style="margin-bottom:14px"><p>Taxa: <b>O.U.G. nr. 80/2013</b>, în forma modificată prin <b>Legea nr. 268/2024</b> (partaj și divorț, în vigoare din 3.11.2024) și <b>Legea nr. 199/2025</b>. Pentru cererile depuse înainte de 3.11.2024 la partaj și divorț se aplicau alte taxe.</p><p>Competența: <b>Codul de procedură civilă</b> republicat (cu Legea nr. 310/2018) și legile speciale indicate. Dacă litigiul are element de extraneitate, competența instanțelor române se verifică mai întâi după Regulamentul (UE) nr. 1215/2012 sau Cartea a VII-a C.proc.civ. Punctele marcate „de verificat” nu au putut fi confirmate din textul în vigoare.</p></div>
   <div class="grid-2">
     <div>
