@@ -1,0 +1,74 @@
+/* Calculatoarele juridice pe site-ul www.avocatioanastoica.ro: aceleași componente ca în aplicația cabinetului,
+   izolate în .calc ca să nu se amestece cu stilul site-ului, și adaptate la culorile lui. */
+.calc {
+  --surface: var(--alb, #fff); --surface-2: #faf9f6; --ink: var(--cerneala, #1e1f22); --muted: var(--text-slab, #6b6c70);
+  --line: var(--linie, #e1e0dc); --primary: var(--cardinal, #b3182f); --primary-ink: #fff;
+  --u1: #b3261e; --u2: #b7791f; --u3: #2b6a62; --u4: #7c8291; --ok: #2b6a62; --ok-soft: #eaf4f2;
+  --warn-soft: #fdf3e2; --danger-soft: #fbe9e7; --radius: 4px;
+  font: 400 16px/1.5 var(--sans, system-ui, sans-serif); color: var(--ink);
+}
+.calc *, .calc *::before, .calc *::after { box-sizing: border-box; }
+.calc h2 { font-size: 1.12rem; margin: 0; line-height: 1.3; }
+.calc h3 { font-size: 1rem; margin: 0 0 6px; }
+.calc p { margin: 0 0 6px; }
+.calc .muted { color: var(--muted); }
+.calc .small { font-size: .85rem; }
+.calc .nowrap { white-space: nowrap; }
+.calc .btn { display: inline-flex; align-items: center; gap: 6px; justify-content: center; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  padding: 8px 14px; border-radius: var(--radius); font: inherit; font-weight: 600; font-size: .9rem; cursor: pointer; text-decoration: none; white-space: normal; max-width: 100%; text-align: center; }
+.calc .btn:hover { border-color: var(--muted); }
+.calc .btn.primary { background: var(--primary); border-color: var(--primary); color: var(--primary-ink); }
+.calc .btn.primary:hover { filter: brightness(1.08); }
+.calc .btn.ghost { background: transparent; }
+.calc .btn.sm { padding: 5px 10px; font-size: .82rem; }
+.calc .icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 1rem; flex: none; }
+.calc .icon-btn:hover { background: var(--surface-2); color: var(--ink); }
+.calc .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: none; padding: 18px; }
+.calc .card + .card, .calc .grid-2 > div > .card + .card { margin-top: 14px; }
+.calc .card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.calc .card-head .btn, .calc .card-head .icon-btn { margin-left: auto; }
+.calc .grid-2 { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 960px) { .calc .grid-2 { grid-template-columns: minmax(0, 1fr); } }
+.calc .pill { display: inline-block; font-size: .7rem; font-weight: 700; padding: 2px 8px; border-radius: 99px; text-transform: uppercase; letter-spacing: .03em; white-space: nowrap; }
+.calc .pill.u1 { background: color-mix(in srgb, var(--u1) 16%, transparent); color: var(--u1); }
+.calc .pill.u2 { background: color-mix(in srgb, var(--u2) 18%, transparent); color: var(--u2); }
+.calc .pill.u3 { background: color-mix(in srgb, var(--u3) 14%, transparent); color: var(--u3); }
+.calc .pill.ok { background: var(--ok-soft); color: var(--ok); }
+.calc .callout { border-radius: var(--radius); padding: 12px 14px; background: var(--surface-2); border: 1px solid var(--line); font-size: .9rem; }
+.calc .callout.warn { background: var(--warn-soft); border-color: color-mix(in srgb, var(--u2) 35%, var(--line)); }
+.calc .callout.danger { background: var(--danger-soft); border-color: color-mix(in srgb, var(--u1) 35%, var(--line)); }
+.calc .callout p { margin: 0 0 6px; } .calc .callout p:last-child { margin: 0; }
+.calc .avertisment { margin-bottom: 14px; }
+.calc .empty { color: var(--muted); font-size: .9rem; padding: 8px 2px; }
+.calc ul.list { list-style: none; margin: 0; padding: 0; }
+.calc ul.list li { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: .9rem; }
+.calc ul.list li:last-child { border-bottom: 0; }
+.calc ul.list .grow { flex: 1; min-width: 0; }
+.calc ul.list .grow > * { display: block; }
+.calc .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.calc .field { display: flex; flex-direction: column; gap: 4px; font-size: .85rem; font-weight: 600; min-width: 0; }
+.calc .field input, .calc .field select, .calc .field textarea { font: inherit; font-weight: 400; font-size: .95rem; padding: 8px 10px; border-radius: var(--radius);
+  border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); width: 100%; max-width: 100%; }
+.calc .field input:focus, .calc .field select:focus, .calc .field textarea:focus { outline: 2px solid color-mix(in srgb, var(--accent, #2b6a62) 50%, transparent); border-color: var(--accent, #2b6a62); }
+.calc .calc-result { font-size: 1.35rem; font-weight: 700; color: var(--primary); }
+.calc .steps { margin: 8px 0 0; padding-left: 18px; font-size: .9rem; }
+.calc .steps li { margin-bottom: 4px; }
+.calc .comp { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+.calc .comp dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 12px; margin: 0; font-size: .92rem; }
+.calc .comp dt { font-weight: 700; color: var(--muted); }
+.calc .comp dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 560px) { .calc .comp dl { grid-template-columns: minmax(0, 1fr); } .calc .comp dd { margin-bottom: 6px; } }
+.calc details > summary { cursor: pointer; }
+.calc pre.minuta { white-space: pre-wrap; font: inherit; font-size: .88rem; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 10px; margin: 6px 0; user-select: all; }
+.calc .apj-membru { border-top: 1px solid var(--line); margin-top: 12px; padding-top: 10px; }
+.calc .apj-membru .field { margin-top: 8px; }
+.calc .apj-rand { display: flex; gap: 10px; flex-wrap: wrap; justify-content: space-between; }
+.calc .apj-rand > .field { flex: 1 1 160px; min-width: 0; }
+.calc .apj-rand > .apj-mic { flex: 0 1 90px; }
+.calc .calc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 18px; }
+.calc .calc-tabs a { padding: 9px 16px; border-radius: 99px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; font-weight: 600; font-size: .9rem; }
+.calc .calc-tabs a.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.calc textarea { max-width: 100%; }
+#toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); background: #1e1f22; color: #fff; padding: 10px 18px; border-radius: 6px;
+  font: 600 .9rem system-ui, sans-serif; opacity: 0; pointer-events: none; transition: .2s; z-index: 100; max-width: calc(100vw - 32px); }
+#toast.show { opacity: 1; transform: translateX(-50%); }

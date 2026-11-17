@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cere consultație · Av. Ioana Stoica</title>
+<meta name="description" content="Trimite actele în format PDF și descrie pe scurt problema. Le studiez, iau legătura cu tine și primești o ofertă pentru dosar.">
+<link rel="canonical" href="https://www.avocatioanastoica.ro/trimite-actele.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Av. Ioana Stoica">
+<meta property="og:locale" content="ro_RO">
+<meta property="og:title" content="Cere consultație · Av. Ioana Stoica">
+<meta property="og:description" content="Trimite actele în format PDF și descrie pe scurt problema. Le studiez, iau legătura cu tine și primești o ofertă pentru dosar.">
+<meta property="og:url" content="https://www.avocatioanastoica.ro/trimite-actele.html">
+<meta property="og:image" content="https://www.avocatioanastoica.ro/imagini/distribuire.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="stil.css">
+</head>
+<body data-pagina="formular">
+<div style="position:relative;z-index:2147483001;background:#fff3b0;color:#6b5300;font:600 14px/1.4 system-ui,sans-serif;text-align:center;padding:8px 12px;border-bottom:1px solid #e6d27a">Previzualizare – versiune de test a site-ului. Formularul nu trimite automat nimic.</div>
+<header id="antet"></header>
+
+<main>
+  <section class="banda" data-banda="3">
+    <div class="continut"><div class="cale">Mandat digital</div><h1>Cere consultație</h1></div>
+  </section>
+  <section class="cap-pagina">
+    <div class="continut">
+      <p>Tot ce completezi aici, împreună cu actele și dovada plății, pleacă <b>prin e-mail, direct la avocat</b>, la apăsarea butonului „Trimite actele”. Totul rămâne sub secretul profesional.</p>
+    </div>
+  </section>
+
+  <section class="sectiune" style="padding-top:24px">
+    <div class="continut ingust">
+      <form id="formular" class="formular" novalidate>
+        <fieldset>
+          <legend>1. Datele tale</legend>
+          <div class="randuri">
+            <div class="camp tot" data-pentru="nume">
+              <label for="nume">Numele și prenumele</label>
+              <input type="text" id="nume" name="nume" autocomplete="name" required>
+              <div class="eroare"></div>
+            </div>
+            <div class="camp" data-pentru="telefon">
+              <label for="telefon">Telefon</label>
+              <input type="tel" id="telefon" name="telefon" autocomplete="tel" required>
+              <div class="eroare"></div>
+            </div>
+            <div class="camp" data-pentru="email">
+              <label for="email">E-mail</label>
+              <input type="email" id="email" name="email" autocomplete="email" required>
+              <div class="eroare"></div>
+            </div>
+            <div class="camp tot">
+              <label for="localitate">Localitatea și județul <small>(opțional)</small></label>
+              <input type="text" id="localitate" name="localitate" autocomplete="address-level2">
+            </div>
+            <div class="camp tot" data-pentru="comunicare">
+              <span class="eticheta">Cum putem comunica?</span>
+              <div class="optiuni">
+                <label><input type="radio" name="comunicare" value="telefon"> Telefon</label>
+                <label><input type="radio" name="comunicare" value="mesaje"> Mesaje</label>
+                <label><input type="radio" name="comunicare" value="e-mail"> E-mail</label>
+                <label><input type="radio" name="comunicare" value="întâlnire la distanță"> Întâlnire la distanță</label>
+              </div>
+              <div class="eroare"></div>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>2. Problema ta</legend>
+          <div class="randuri">
+            <div class="camp tot" data-pentru="domeniu">
+              <label for="domeniu">Domeniul</label>
+              <select id="domeniu" name="domeniu" required>
+                <option value="">Alege…</option>
+                <option>Drept civil</option>
+                <option>Dreptul familiei</option>
+                <option>Executare silită</option>
+                <option>Drept bancar</option>
+                <option>Contencios administrativ</option>
+                <option>Dreptul muncii</option>
+                <option>Dreptul transporturilor</option>
+                <option>Contravenție</option>
+                <option>Drepturile omului (CEDO)</option>
+                <option>Problemă juridică în afara țării (diaspora)</option>
+                <option>Nu știu / altceva</option>
+              </select>
+              <div class="eroare"></div>
+            </div>
+            <div class="camp">
+              <label for="dosar">Există deja un dosar? <small>(opțional)</small></label>
+              <p class="ajutor">Numărul și instanța, dacă le știi.</p>
+              <input type="text" id="dosar" name="dosar">
+            </div>
+            <div class="camp">
+              <label for="termen">Ai primit un act cu un termen? <small>(opțional)</small></label>
+              <p class="ajutor">Data la care ai primit actul sau data limită.</p>
+              <input type="text" id="termen" name="termen" placeholder="ex.: primit pe 3 noiembrie">
+            </div>
+            <div class="camp tot" data-pentru="descriere">
+              <label for="descriere">Ce s-a întâmplat?</label>
+              <p class="ajutor">Câteva fraze sunt de ajuns: ce s-a întâmplat, când și ce ți-ai dori să obții.</p>
+              <textarea id="descriere" name="descriere" required></textarea>
+              <div class="eroare"></div>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>3. Când ești disponibil</legend>
+          <p class="ajutor-fieldset">După ce studiez actele, iau legătura cu tine în timp util pentru consultația propriu-zisă, pentru care achiți acum onorariul. Spune-mi când ești de obicei disponibil.</p>
+          <div class="randuri">
+            <div class="camp tot" data-pentru="zile">
+              <span class="eticheta">Zilele</span>
+              <div class="optiuni">
+                <label><input type="checkbox" name="zile" value="luni"> Luni</label>
+                <label><input type="checkbox" name="zile" value="marți"> Marți</label>
+                <label><input type="checkbox" name="zile" value="miercuri"> Miercuri</label>
+                <label><input type="checkbox" name="zile" value="joi"> Joi</label>
+                <label><input type="checkbox" name="zile" value="vineri"> Vineri</label>
+              </div>
+              <div class="eroare"></div>
+            </div>
+            <div class="camp tot" data-pentru="ore">
+              <span class="eticheta">Orele</span>
+              <div class="optiuni">
+                <label><input type="checkbox" name="ore" value="9–12"> 9–12</label>
+                <label><input type="checkbox" name="ore" value="12–15"> 12–15</label>
+                <label><input type="checkbox" name="ore" value="15–18"> 15–18</label>
+                <label><input type="checkbox" name="ore" value="18–20"> 18–20</label>
+              </div>
+              <div class="eroare"></div>
+            </div>
+            <div class="camp tot">
+              <label for="disponibilitate">Alte precizări <small>(opțional)</small></label>
+              <input type="text" id="disponibilitate" name="disponibilitate" placeholder="ex.: marți după 17, nu în săptămâna 10–14 noiembrie">
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>4. Actele</legend>
+          <div class="camp" data-pentru="fisiere">
+            <div class="zona-fisiere" tabindex="0" role="button" aria-label="Alege actele PDF">
+              <input type="file" id="fisiere" accept="application/pdf,.pdf" multiple>
+              <i class="ico" data-icon="pdf"></i><div><b>Alege actele</b> sau trage-le aici</div>
+              <div class="ajutor" style="margin:6px 0 0">Doar fișiere PDF, în total cel mult <span data-max-mb></span>. Ai doar poze? Telefonul le poate salva ca PDF, din aplicația de scanare.</div>
+            </div>
+            <ul class="lista-fisiere"></ul>
+            <div class="total-fisiere"></div>
+            <div class="eroare"></div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>5. Plata și trimiterea</legend>
+          <div class="ce-primesti">
+            <h3>Onorariul de consultație: <span data-taxa></span></h3>
+            <p class="nota" style="margin-bottom:.5em">se oferă pentru următoarele servicii juridice:</p>
+            <ul class="lista-bife">
+              <li>citesc cu atenție toate actele trimise</li>
+              <li>iau legătura cu tine în timp util pentru consultație</li>
+              <li>îți spun ce variante ai și ce direcție îți propun</li>
+              <li>primești o ofertă scrisă pentru dosar</li>
+            </ul>
+            <p class="nota">Onorariul de consultație nu obligă la continuarea colaborării. Onorariul de reprezentare se stabilește de comun acord, după consultație, iar din el se scade onorariul de consultație.</p>
+          </div>
+          <div class="camp" data-pentru="acorduri">
+            <label class="bifa"><input type="checkbox" name="gdpr"> <span>Am citit <a href='/confidentialitate' target='_blank'>Politica de confidențialitate</a> și sunt de acord ca datele și actele mele să fie folosite pentru analiza cererii.</span></label>
+            <label class="bifa"><input type="checkbox" name="termeni"> <span>Sunt de acord cu <a href='/termeni' target='_blank'>Termenii și condițiile</a>.</span></label>
+            <div class="eroare"></div>
+          </div>
+
+          <div class="plata" data-pentru="plata">
+            <span class="eticheta">Achitarea onorariului de consultație (<span data-taxa></span>)</span>
+            <div class="metode">
+              <label class="metoda"><input type="radio" name="metoda" value="card"><span><i class="ico" data-icon="card"></i><b>Online: card, Google Pay, Apple Pay</b><small>Pe pagina securizată a procesatorului de plăți (de exemplu, NETOPIA Payments).</small><span class="insigne-plata"><em>VISA</em><em>Mastercard</em><em>G Pay</em><em> Pay</em></span></span></label>
+              <label class="metoda"><input type="radio" name="metoda" value="transfer"><span><i class="ico" data-icon="banca"></i><b>Transfer bancar</b><small>Ordin de plată din aplicația băncii tale; încarci apoi dovada plății.</small></span></label>
+            </div>
+            <div class="detalii-plata" data-pentru-metoda="card" hidden>
+              <p>Pagina de plată se deschide într-o fereastră nouă. Acolo alegi cardul, Google Pay sau Apple Pay. După plată, revino aici: formularul se deblochează singur.</p>
+              <a class="buton buton-discret" id="plateste-card" href="#" target="_blank" rel="noopener">Achită <span data-taxa></span> online</a>
+              <p class="stare-plata" id="stare-card">Plata nu este încă confirmată.</p>
+            </div>
+            <div class="detalii-plata" data-pentru-metoda="transfer" hidden>
+              <dl class="cont-bancar">
+                <dt>Beneficiar</dt><dd data-camp="beneficiar"></dd>
+                <dt>IBAN</dt><dd data-camp="iban"></dd>
+                <dt>Banca</dt><dd data-camp="banca"></dd>
+                <dt>Suma</dt><dd data-taxa></dd>
+                <dt>Detalii</dt><dd>Analiza acte și consultație, <span id="detalii-nume">numele tău</span></dd>
+              </dl>
+              <div class="camp" data-pentru="dovada">
+                <label for="dovada">Dovada plății</label>
+                <p class="ajutor">Ordinul de plată sau captura din aplicația băncii (PDF, JPG sau PNG).</p>
+                <input type="file" id="dovada" accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png">
+                <div class="eroare"></div>
+              </div>
+            </div>
+            <div class="eroare"></div>
+          </div>
+
+          <div class="ascuns" aria-hidden="true"><label>Nu completa acest câmp <input type="text" name="site" tabindex="-1" autocomplete="off"></label></div>
+          <div class="trimite">
+            <button class="buton buton-principal buton-mare" type="submit" disabled>Trimite actele</button>
+            <p class="lacat" id="lacat">Butonul se activează după plată.</p>
+          </div>
+          <div id="mesaj" class="mesaj" role="status" aria-live="polite"></div>
+        </fieldset>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer id="subsol"></footer>
+<script src="date-cabinet.js"></script>
+<script src="site.js"></script>
+
+</body>
+</html>
