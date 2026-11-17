@@ -17,11 +17,16 @@ function toast(msg, ms = 2600) {
   toast._t = setTimeout(() => t.classList.remove('show'), Math.max(ms, String(msg).length * 55));
 }
 
+const PAGINI = [['taxa', 'Taxă timbru & competență', () => viewTaxa()], ['cautiune', 'Calcul cauțiune', () => viewCautiune()], ['apj', 'Ajutor public judiciar', () => viewApj()]];
+
 function rerender() {
   const y = window.scrollY;
-  $('#view').innerHTML = viewTaxa();
+  const cheie = location.hash.replace(/^#\/?/, '');
+  const pag = PAGINI.find(p => p[0] === cheie) || PAGINI[0];
+  $('#view').innerHTML = `<nav class="calc-tabs">${PAGINI.map(p => `<a href="#${p[0]}" class="${p === pag ? 'active' : ''}">${p[1]}</a>`).join('')}</nav>${pag[2]()}`;
   window.scrollTo(0, y);
 }
+window.addEventListener('hashchange', () => { rerender(); window.scrollTo(0, 0); });
 
 const ACT = {
   taxaAdauga: () => taxaAdauga(),
@@ -31,6 +36,11 @@ const ACT = {
     try { await navigator.clipboard.writeText(taxaText()); toast('Text copiat.'); } catch { toast('Selectați textul și copiați-l cu Ctrl+C.'); }
   },
   grilaAdauga: () => grilaAdauga(),
+  cautCopiaza: async () => { try { await navigator.clipboard.writeText(cautText(cautCalcul())); toast('Text copiat.'); } catch { toast('Selectați textul și copiați-l cu Ctrl+C.'); } },
+  apjAdauga: () => apjAdauga(),
+  apjScoate: d => { AP.membri.splice(Number(d.i), 1); rerender(); },
+  apjPreiaTaxa: () => apjPreiaTaxa(),
+  apjCopiaza: async () => { try { await navigator.clipboard.writeText(apjText(apjCalcul())); toast('Text copiat.'); } catch { toast('Selectați textul și copiați-l cu Ctrl+C.'); } },
   grilaScoate: d => { GR.lista.splice(Number(d.i), 1); rerender(); },
   grilaFoloseste: () => grilaFoloseste(),
 };
@@ -50,12 +60,15 @@ document.addEventListener('change', e => {
 
 document.addEventListener('toggle', e => { if (e.target.id === 'grila') GR.deschis = e.target.open; }, true);
 
+// Câmpurile calculatoarelor: atributul data-* → funcția care salvează valoarea
+const CALC_CAMPURI = [['txv', (k, v) => { TX.vals[k] = v; }], ['tx', (k, v) => { if (k === 'q') TX.q = v; }], ['grv', (k, v) => grilaSet(k, v)], ['cav', (k, v) => cautSet(k, v)], ['apv', (k, v) => apjSet(k, v)], ['apm', (k, v) => apjSetMembru(k, v)]];
+
 document.addEventListener('input', e => {
-  const tv = e.target.dataset?.txv || (e.target.dataset?.tx === 'q' ? 'q' : null), gv = e.target.dataset?.grv;
-  if (!tv && !gv) return;
-  const val = e.target.type === 'checkbox' ? (e.target.checked ? '1' : '') : e.target.value;
-  if (gv) grilaSet(gv, val); else if (tv === 'q') TX.q = val; else TX.vals[tv] = val;
-  const pos = e.target.selectionStart, sel = gv ? `[data-grv="${gv}"]` : tv === 'q' ? '[data-tx="q"]' : `[data-txv="${tv}"]`;
+  const leg = CALC_CAMPURI.map(([attr, set]) => [attr, e.target.dataset?.[attr], set]).find(([attr, key]) => key != null && !(attr === 'tx' && key === 'sel'));
+  if (!leg) return;
+  const [attr, key, set] = leg;
+  set(key, e.target.type === 'checkbox' ? (e.target.checked ? '1' : '') : e.target.value);
+  const pos = e.target.selectionStart, sel = `[data-${attr}="${key}"]`;
   rerender();
   const again = $(sel);
   if (again) { again.focus(); try { again.setSelectionRange(pos, pos); } catch { /* câmp fără cursor */ } }

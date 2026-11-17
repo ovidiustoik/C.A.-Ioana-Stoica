@@ -87,6 +87,8 @@ const ICONS = {
   contabilitate: '<rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M16 15h2M7 3h10"/>',
   termene: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   taxa: '<path d="M4 4h16v6a2 2 0 0 0 0 4v6H4v-6a2 2 0 0 0 0-4z"/><path d="M9 9h6M9 15h6"/>',
+  cautiune: '<path d="M12 3 4 6v6c0 4.5 3.4 8 8 9 4.6-1 8-4.5 8-9V6z"/><path d="M12 8v8M9.5 10.5h4a1.5 1.5 0 0 1 0 3h-3a1.5 1.5 0 0 0 0 3h4"/>',
+  apj: '<circle cx="12" cy="6" r="2.5"/><path d="M12 9v12M5 21h14M6 12l-3 5h6zM18 12l-3 5h6zM6 12h12"/>',
   linkuri: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
   semnatura: '<path d="M4 20h16"/><path d="M15 4l5 5-9 9H6v-5z"/>',
   mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
@@ -113,6 +115,8 @@ const NAV = [
   ['contabilitate', 'Contabilitate & ANAF'],
   ['termene', 'Calcul termene'],
   ['taxa', 'Taxă timbru & competență'],
+  ['cautiune', 'Calcul cauțiune'],
+  ['apj', 'Ajutor public judiciar'],
   ['linkuri', 'Linkuri utile'],
   null,
   ['setari', 'Setări & backup'],
@@ -1167,6 +1171,8 @@ const ROUTES = {
   contabilitate: [viewAccounting, 'Contabilitate & ANAF'],
   termene: [viewTermCalc, 'Calcul termene'],
   taxa: [viewTaxa, 'Taxă de timbru & competență'],
+  cautiune: [viewCautiune, 'Calcul cauțiune'],
+  apj: [viewApj, 'Ajutor public judiciar'],
   linkuri: [viewLinks, 'Linkuri utile'],
   setari: [viewSettings, 'Setări & backup'],
   cautare: [viewSearch, 'Căutare'],
@@ -1242,6 +1248,11 @@ const ACT = {
   taxaAdauga: () => taxaAdauga(),
   taxaGoleste: () => { TX.cos = []; rerender(); },
   grilaAdauga: () => grilaAdauga(),
+  cautCopiaza: async () => { try { await navigator.clipboard.writeText(cautText(cautCalcul())); toast('Text copiat.'); } catch { toast('Selectați textul și copiați-l cu Ctrl+C.'); } },
+  apjAdauga: () => apjAdauga(),
+  apjScoate: d => { AP.membri.splice(Number(d.i), 1); rerender(); },
+  apjPreiaTaxa: () => apjPreiaTaxa(),
+  apjCopiaza: async () => { try { await navigator.clipboard.writeText(apjText(apjCalcul())); toast('Text copiat.'); } catch { toast('Selectați textul și copiați-l cu Ctrl+C.'); } },
   grilaScoate: d => { GR.lista.splice(Number(d.i), 1); rerender(); },
   grilaFoloseste: () => grilaFoloseste(),
   taxaScoate: d => { TX.cos.splice(Number(d.i), 1); rerender(); },
@@ -1495,15 +1506,25 @@ document.addEventListener('change', async e => {
   }
 });
 
+// Câmpurile calculatoarelor (taxă, grilă, cauțiune, ajutor public judiciar): atributul data-* → funcția care salvează valoarea
+const CALC_CAMPURI = [['txv', (k, v) => { TX.vals[k] = v; }], ['tx', (k, v) => { if (k === 'q') TX.q = v; }], ['grv', (k, v) => grilaSet(k, v)], ['cav', (k, v) => cautSet(k, v)], ['apv', (k, v) => apjSet(k, v)], ['apm', (k, v) => apjSetMembru(k, v)]];
+function calcLegatura(el) {
+  for (const [attr, set] of CALC_CAMPURI) {
+    const key = el.dataset?.[attr];
+    if (key != null && !(attr === 'tx' && key === 'sel')) return [attr, key, set];
+  }
+  return null;
+}
+
 // starea panoului „Grila notarială” se păstrează la redesenare
 document.addEventListener('toggle', e => { if (e.target.id === 'grila') GR.deschis = e.target.open; }, true);
 
 document.addEventListener('input', e => {
-  const tv = e.target.dataset?.txv || (e.target.dataset?.tx === 'q' ? 'q' : null), gv = e.target.dataset?.grv;
-  if (tv || gv) {
-    const val = e.target.type === 'checkbox' ? (e.target.checked ? '1' : '') : e.target.value;
-    if (gv) grilaSet(gv, val); else if (tv === 'q') TX.q = val; else TX.vals[tv] = val;
-    const pos = e.target.selectionStart, sel = gv ? `[data-grv="${gv}"]` : tv === 'q' ? '[data-tx="q"]' : `[data-txv="${tv}"]`;
+  const leg = calcLegatura(e.target);
+  if (leg) {
+    const [attr, key, set] = leg;
+    set(key, e.target.type === 'checkbox' ? (e.target.checked ? '1' : '') : e.target.value);
+    const pos = e.target.selectionStart, sel = `[data-${attr}="${key}"]`;
     rerender();
     const again = $(sel);
     if (again) { again.focus(); try { again.setSelectionRange(pos, pos); } catch { /* câmp fără cursor */ } }

@@ -18,6 +18,8 @@ Aplicație web pentru organizarea activității cabinetului. Rulează în browse
 | **Contabilitate & ANAF** | Buton către SPV ANAF și Ghișeul.ro; evidența obligațiilor și notificărilor din SPV, introduse automat în calendar și TO DO; registru simplu de încasări și plăți, cu export CSV pentru Excel. |
 | **Calcul termene** | Calculează ultima zi a unui termen procedural (art. 181 C.proc.civ.), cu prelungire peste zilele nelucrătoare, și îl poate adăuga în TO DO. |
 | **Taxă timbru & competență** | Taxa judiciară de timbru după O.U.G. nr. 80/2013 (text consolidat, inclusiv Legea nr. 268/2024, Legea nr. 199/2025 și RIL nr. 22/2025), verificată și cu planul de seminar INM: 113 obiecte non-penale (fără încuviințarea executării silite), inclusiv căile de atac (art. 23–26), cererile netaxabile și scutirile. Imobile: taxa la valoarea impozabilă sau, dacă e contestată/derizorie, la valoarea din **grila notarială Curtea de Argeș 2026** (calculator integrat: teren, apartament, casă), competența rămânând la valoarea impozabilă. Pentru fiecare obiect: competența generală, materială și teritorială, cu temeiul legal; pentru mai multe capete – total, competența pe întreaga cerere (art. 98, 99, 123 C.proc.civ.) și text gata de copiat. Punctele neconfirmate sunt marcate „de verificat”. Există și ca **aplicație separată** (vezi mai jos). |
+| **Calcul cauțiune** | Baremul art. 719 alin. (2)–(3) C.proc.civ. (10% până la 10.000 lei; 1.000 lei + 5%; 5.500 lei + 1%; 14.500 lei + 0,1%; 1.000 lei pentru obiect neevaluabil), aplicat și la art. 484, 507, 512 și 450; scutirea consumatorilor cu venituri de cel mult două salarii minime (Legea nr. 193/2000, O.U.G. nr. 58/2022); sechestrul și poprirea asigurătorie (art. 953). Text gata de copiat. |
+| **Ajutor public judiciar** | Verificarea condițiilor din O.U.G. nr. 51/2008: membrii familiei, vârsta, veniturile pe ultimele 2 luni, cheltuieli (medicale, copii, întreținere, locuință), costurile procesului; pragurile de 25% / 50% din salariul minim brut (Legea nr. 31/2023), plafonul anual (art. 7), aprecierea după art. 8 alin. (3), actele necesare și o propunere de dispozitiv. Pentru persoane juridice: facilitățile din art. 42–44 O.U.G. nr. 80/2013. |
 | **Linkuri utile** | legislatie.just.ro, ReJust, Registratura electronică, Portalul instanțelor, Ghișeul.ro, ANAF, ICCJ, CCR, HUDOC, CJUE, UNBR, ONRC, ANCPI ePay, Claude etc. Se pot edita. |
 | **Setări & backup** | Nume, adresa SPV, temă, zile nelucrătoare suplimentare, backup/restaurare, ștergerea datelor. |
 
@@ -54,13 +56,13 @@ Fiecare variantă își păstrează datele separat (sunt „browsere” diferite
 
 ## Aplicația separată „Taxă de timbru & competență”
 
-Aceeași pagină de calcul, fără nimic din cabinet (fără dosare, clienți sau date personale) – pentru grefă sau colegi.
+Aceleași calculatoare (taxă de timbru & competență, cauțiune, ajutor public judiciar), fără nimic din cabinet (fără dosare, clienți sau date personale) – pentru grefă sau colegi.
 
 - **Instalare pe Windows:** [Instalare-Taxa-timbru-competenta.exe](https://ovidiustoik.github.io/C.A.-Ioana-Stoica/calculator/Instalare-Taxa-timbru-competenta.exe) (≈190 KB). Se instalează doar pentru utilizatorul curent, fără drepturi de administrator, pune iconița pe Desktop și în meniul Start și se deschide într-o fereastră proprie (Edge sau Chrome în modul aplicație). Merge fără internet. Când apare o versiune nouă, aplicația afișează un anunț cu linkul de descărcare. Dezinstalare: *Setări → Aplicații* sau *Start → Taxă de timbru și competență → Dezinstalare*.
 - **Online / telefon:** https://ovidiustoik.github.io/C.A.-Ioana-Stoica/calculator/ – în Chrome/Edge: *Instalează aplicația*; pe Android: *Adaugă pe ecranul principal*. Se actualizează singură.
 - **Un singur fișier:** [Taxa-timbru-competenta.html](https://ovidiustoik.github.io/C.A.-Ioana-Stoica/calculator/Taxa-timbru-competenta.html) – se poate trimite pe e-mail sau stick și se deschide cu dublu-clic.
 
-**Actualizare după o modificare** în `taxa.js`, `competenta.js`, `grila.js` sau `style.css`: `python3 tools/construieste-calculator.py` refac pagina, fișierul unic, `versiune.json` și fișierul de instalare (cu `makensis`).
+**Actualizare după o modificare** în `taxa.js`, `competenta.js`, `grila.js`, `cautiune.js`, `apj.js` sau `style.css`: `python3 tools/construieste-calculator.py` refac pagina, fișierul unic, `versiune.json` și fișierul de instalare (cu `makensis`).
 
 ## Structură
 
@@ -74,4 +76,5 @@ Aceeași pagină de calcul, fără nimic din cabinet (fără dosare, clienți sa
 - `sw.js`, `manifest.webmanifest`, iconițele: funcționare offline și instalare pe telefon
 - `electron/`, `build/`: varianta Electron și iconițele (doamna Justiției)
 - `taxa.js`, `competenta.js`, `grila.js`: taxa de timbru, competența și grila notarială Curtea de Argeș 2026
+- `cautiune.js`, `apj.js`: calculul cauțiunii și verificarea ajutorului public judiciar
 - `calculator/`: aplicația separată (`calc.js`, `sablon.html`, `instalare.nsi` sunt sursele; restul se generează cu `tools/construieste-calculator.py`)

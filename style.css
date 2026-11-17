@@ -429,3 +429,11 @@ label.btn input[type=file] { display: none; }
 @media (max-width: 560px) { .comp dl { grid-template-columns: minmax(0, 1fr); } .comp dd { margin-bottom: 6px; } }
 .grila .actions .btn, .card .actions .btn { white-space: normal; max-width: 100%; text-align: center; }
 pre.minuta { white-space: pre-wrap; font: inherit; font-size: .88rem; background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; margin: 6px 0; user-select: all; }
+.apj-membru { border-top: 1px solid var(--line); margin-top: 12px; padding-top: 10px; }
+.apj-membru .field { margin-top: 8px; }
+.apj-rand { display: flex; gap: 10px; flex-wrap: wrap; justify-content: space-between; }
+.apj-rand > .field { flex: 1 1 160px; min-width: 0; }
+.apj-rand > .apj-mic { flex: 0 1 90px; }
+.calc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 14px; }
+.calc-tabs a { padding: 8px 14px; border-radius: 99px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; font-weight: 600; font-size: .9rem; }
+.calc-tabs a.active { background: var(--primary); border-color: var(--primary); color: #fff; }

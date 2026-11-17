@@ -7,7 +7,7 @@ Rezultă, în folderul calculator/:
   versiune.json                       – versiunea curentă (aplicația instalată verifică dacă a apărut una nouă)
   Instalare-Taxa-timbru-competenta.exe – fișierul de instalare pentru Windows (dacă există makensis)
 
-Se rulează după orice modificare în taxa.js, competenta.js, grila.js sau style.css:
+Se rulează după orice modificare în taxa.js, competenta.js, grila.js, cautiune.js, apj.js sau style.css:
   python3 tools/construieste-calculator.py [versiune]      (implicit: data de azi, AAAA.LL.ZZ)
 """
 import base64, datetime, json, os, shutil, subprocess, sys
@@ -24,7 +24,7 @@ def script(cod):
     return '<script>\n' + cod.replace('</script', '<\\/script') + '\n</script>'
 
 icon = 'data:image/svg+xml;base64,' + base64.b64encode((RAD / 'icon.svg').read_bytes()).decode()
-scripturi = [citeste(f) for f in ('taxa.js', 'competenta.js', 'grila.js')]
+scripturi = [citeste(f) for f in ('taxa.js', 'competenta.js', 'grila.js', 'cautiune.js', 'apj.js')]
 scripturi.append(citeste('calculator/calc.js').replace('__VERSIUNE__', versiune))
 pagina = (citeste('calculator/sablon.html')
           .replace('{{ICON}}', icon)
@@ -43,7 +43,7 @@ if not makensis:
     print('makensis nu există: fișierul de instalare nu a fost refăcut.')
     sys.exit(0)
 env = dict(os.environ)
-nsis_dir = Path(makensis).resolve().parent.parent
-env.setdefault('NSISDIR', str(nsis_dir))
+if 'electron-builder' in makensis:  # copia din electron-builder nu își știe singură folderul cu fișierele NSIS
+    env.setdefault('NSISDIR', str(Path(makensis).resolve().parent.parent))
 subprocess.run([makensis, '-V2', '-INPUTCHARSET', 'UTF8', f'-DVERSIUNE={versiune}', 'instalare.nsi'], cwd=CALC, check=True, env=env)
 print('Instalare-Taxa-timbru-competenta.exe:', (CALC / 'Instalare-Taxa-timbru-competenta.exe').stat().st_size // 1024, 'KB')
