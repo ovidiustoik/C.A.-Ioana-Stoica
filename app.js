@@ -502,24 +502,6 @@ async function syncAnafFromTask(anafId, done) {
   if (a) await save('anaf', { ...a, status: done ? 'rezolvat' : 'deschis' });
 }
 
-function ledgerForm(l = {}) {
-  openForm({
-    title: l.id ? 'Editează înregistrarea' : 'Înregistrare nouă în registru',
-    values: { type: 'incasare', date: today(), method: 'Bancă', ...l },
-    fields: [
-      { name: 'type', label: 'Tip', type: 'select', options: [['incasare', 'Încasare'], ['plata', 'Plată / cheltuială']] },
-      { name: 'date', label: 'Data', type: 'date', required: true },
-      { name: 'amount', label: 'Sumă (lei)', type: 'number', min: 0, required: true },
-      { name: 'method', label: 'Modalitate', type: 'select', options: LEDGER_METHODS.map(m => [m, m]) },
-      { name: 'description', label: 'Explicație', required: true, wide: true, placeholder: 'ex. Onorariu dosar 1234/211/2026; Cotizație barou; Chirie sediu' },
-      { name: 'docNo', label: 'Document justificativ (nr.)' },
-      { name: 'clientId', label: 'Client', type: 'select', options: clientOptions() },
-      { name: 'caseId', label: 'Dosar', type: 'select', options: caseOptions(), wide: true },
-    ],
-    onSave: v => save('ledger', { ...l, ...v }),
-    onDelete: l.id ? () => remove('ledger', l.id) : null,
-  });
-}
 
 function linkForm(l = {}) {
   const groups = [...new Set(S.links.map(x => x.group))];
@@ -697,7 +679,7 @@ function viewHome() {
     <a class="stat ${anafDue.some(a => a.due && diffDays(t0, a.due) <= 7) ? 'alert' : ''}" href="#/contabilitate"><b>${anafDue.length}</b><span>obligații ANAF deschise</span></a>
     <a class="stat" href="#/dosare"><b>${S.cases.filter(c => c.status === 'activ').length}</b><span>dosare în lucru</span></a>
   </div>
-  ${needBackup ? `<div class="callout warn" style="margin-bottom:16px"><p><b>Faceți o copie de siguranță.</b> ${lastBackup ? 'Ultima copie: ' + fmtDate(lastBackup) + '.' : 'Nu ați făcut încă nicio copie.'} Datele sunt păstrate doar în acest browser.</p><button class="btn sm" data-act="backup">Descarcă backup acum</button></div>` : ''}
+  ${needBackup && !backupBanner() ? `<div class="callout warn" style="margin-bottom:16px"><p><b>Faceți o copie de siguranță.</b> ${lastBackup ? 'Ultima copie: ' + fmtDate(lastBackup) + '.' : 'Nu ați făcut încă nicio copie.'} Datele sunt păstrate doar în acest browser.</p><button class="btn sm" data-act="backup">Descarcă backup acum</button></div>` : ''}
   <div class="grid-2">
     <div>
       <h2 style="margin-bottom:10px">${greet}, ${h(name)}! Iată următoarele 7 zile.</h2>
@@ -980,13 +962,14 @@ function viewSuitcase() {
 }
 
 function viewAccounting(tab) {
-  tab = ['registru', 'anaf'].includes(tab) ? tab : 'facturi';
+  tab = ['registru', 'anaf', 'termene', 'rezumat'].includes(tab) ? tab : 'facturi';
   const spv = setting('spvUrl', 'https://www.anaf.ro');
   const sus = `<div class="grid-2" style="margin-bottom:14px">${accesHtml()}
     <div class="card"><h2>ANAF – Spațiul Privat Virtual</h2><div class="actions" style="margin-top:8px"><a class="btn primary" href="${h(spv)}" target="_blank" rel="noopener">Deschide SPV ↗</a><a class="btn" href="https://www.ghiseul.ro" target="_blank" rel="noopener">Ghișeul.ro ↗</a></div>
     <p class="small muted" style="margin:8px 0 0">Facturile descărcate din SPV se preiau în fila „Facturi e-Factura”.</p></div></div>`;
-  const tabs = `<div class="tabs"><a href="#/contabilitate" class="${tab === 'facturi' ? 'active' : ''}">Facturi e-Factura (SPV)</a><a href="#/contabilitate/registru" class="${tab === 'registru' ? 'active' : ''}">Registru încasări și plăți</a><a href="#/contabilitate/anaf" class="${tab === 'anaf' ? 'active' : ''}">Obligații și notificări ANAF</a></div>`;
-  return sus + tabs + (tab === 'registru' ? viewLedger() : tab === 'anaf' ? viewAnaf() : viewFacturi());
+  const tabs = `<div class="tabs"><a href="#/contabilitate" class="${tab === 'facturi' ? 'active' : ''}">Facturi e-Factura (SPV)</a><a href="#/contabilitate/registru" class="${tab === 'registru' ? 'active' : ''}">Registrul-jurnal</a><a href="#/contabilitate/termene" class="${tab === 'termene' ? 'active' : ''}">Termene</a><a href="#/contabilitate/rezumat" class="${tab === 'rezumat' ? 'active' : ''}">Rezumat anual</a><a href="#/contabilitate/anaf" class="${tab === 'anaf' ? 'active' : ''}">Obligații ANAF</a></div>`;
+  const pagini = { registru: viewLedger, anaf: viewAnaf, termene: viewTermene, rezumat: viewRezumat, facturi: viewFacturi };
+  return sus + tabs + pagini[tab]();
 }
 
 function viewAnaf() {
@@ -1022,33 +1005,6 @@ function viewAnaf() {
   </div>`;
 }
 
-function viewLedger() {
-  const y = String(UI.ledgerYear);
-  const years = [...new Set([new Date().getFullYear(), ...S.ledger.map(l => Number(l.date.slice(0, 4)))])].sort((a, b) => b - a);
-  const list = S.ledger.filter(l => l.date.startsWith(y)).sort((a, b) => a.date.localeCompare(b.date));
-  const inc = list.filter(l => l.type === 'incasare').reduce((s, l) => s + (Number(l.amount) || 0), 0);
-  const out = list.filter(l => l.type === 'plata').reduce((s, l) => s + (Number(l.amount) || 0), 0);
-  return `
-  <div class="toolbar">
-    <select data-filter="ledgerYear">${years.map(v => `<option value="${v}" ${String(v) === y ? 'selected' : ''}>${v}</option>`).join('')}</select>
-    <span class="spacer"></span>
-    <button class="btn" data-act="exportCsv">Export CSV (Excel)</button>
-    <button class="btn primary" data-act="newLedger">＋ Înregistrare</button>
-  </div>
-  <div class="stats">
-    <div class="stat"><b>${money(inc)}</b><span>încasări ${y}</span></div>
-    <div class="stat"><b>${money(out)}</b><span>plăți ${y}</span></div>
-    <div class="stat"><b>${money(inc - out)}</b><span>diferență</span></div>
-  </div>
-  <div class="card table-wrap">
-    ${list.length ? `<table><thead><tr><th>Data</th><th>Document</th><th>Explicație</th><th>Modalitate</th><th class="num">Încasări</th><th class="num">Plăți</th></tr></thead><tbody>
-      ${list.map(l => `<tr class="click" data-act="editLedger" data-id="${l.id}"><td class="nowrap">${fmtDate(l.date, { day: '2-digit', month: '2-digit', year: 'numeric' })}</td><td>${h(l.docNo)}</td>
-        <td>${h(l.description)}${l.clientId ? `<br><span class="muted small">${h(clientName(l.clientId))}</span>` : ''}</td><td>${h(l.method)}</td>
-        <td class="num">${l.type === 'incasare' ? money(l.amount) : ''}</td><td class="num">${l.type === 'plata' ? money(l.amount) : ''}</td></tr>`).join('')}
-    </tbody><tfoot><tr><td colspan="4">Total ${y}</td><td class="num">${money(inc)}</td><td class="num">${money(out)}</td></tr></tfoot></table>` : empty('Nicio înregistrare în ' + y + '.')}
-  </div>
-  <p class="small muted">Evidență orientativă, utilă pentru urmărirea onorariilor și a cheltuielilor. Nu înlocuiește registrul de încasări și plăți în forma prevăzută de reglementările fiscale și nici verificarea de către un contabil.</p>`;
-}
 
 function viewTermCalc() {
   const c = UI.calc;
@@ -1203,7 +1159,7 @@ function route() {
   const key = ROUTES[name] ? name : 'acasa';
   const param = decodeURIComponent(rest.join('/'));
   const [fn, title] = ROUTES[key];
-  $('#view').innerHTML = fn(param);
+  $('#view').innerHTML = (key === 'setari' ? '' : backupBanner()) + fn(param);
   $('#pageTitle').textContent = key === 'dosar' ? (byId('cases', param)?.number || 'Dosar') : title;
   document.title = `${$('#pageTitle').textContent} · Cabinet Stoica`;
   renderNav(key === 'dosar' ? 'dosare' : INSTRUMENTE.some(i => i[0] === key) ? 'instrumente' : key);
@@ -1340,6 +1296,8 @@ const ACT = {
   calToday: () => { UI.cal = today().slice(0, 7); UI.calSel = today(); rerender(); },
   exportIcs: () => exportIcs(),
   exportCsv: () => exportCsv(),
+  tiparesteRegistru: () => registruTiparire(),
+  stornare: d => stornare(d.id),
   calcPreset: d => { UI.calc.n = Number(d.n); UI.calc.unit = d.unit; UI.calc.res = computeTerm(UI.calc.start, UI.calc.n, UI.calc.unit); rerender(); },
   backup: () => backup(),
   restore: () => $('#restoreInput').click(),
@@ -1431,16 +1389,6 @@ function exportIcs() {
   download(`calendar-cabinet-${today()}.ics`, lines.join('\r\n'), 'text/calendar');
 }
 
-function exportCsv() {
-  const y = String(UI.ledgerYear);
-  const rows = [['Data', 'Document', 'Explicație', 'Client', 'Dosar', 'Modalitate', 'Încasări', 'Plăți']];
-  S.ledger.filter(l => l.date.startsWith(y)).sort((a, b) => a.date.localeCompare(b.date)).forEach(l => {
-    const amt = (Number(l.amount) || 0).toFixed(2).replace('.', ',');
-    rows.push([fmtDate(l.date, { day: '2-digit', month: '2-digit', year: 'numeric' }), l.docNo, l.description, clientName(l.clientId), byId('cases', l.caseId)?.number || '', l.method, l.type === 'incasare' ? amt : '', l.type === 'plata' ? amt : '']);
-  });
-  const csv = rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(';')).join('\r\n');
-  download(`registru-incasari-plati-${y}.csv`, '\ufeff' + csv, 'text/csv;charset=utf-8');
-}
 
 const blobToDataUrl = b => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsDataURL(b); });
 
@@ -1450,7 +1398,7 @@ async function backupJson() {
     if (s === 'files') {
       const files = await DB.all('files');
       data.stores.files = await Promise.all(files.map(async f => ({ id: f.id, data: await blobToDataUrl(f.blob) })));
-    } else data.stores[s] = S[s].filter(x => s !== 'settings' || !['lastBackup', 'autoBackupDay'].includes(x.id));
+    } else data.stores[s] = S[s].filter(x => s !== 'settings' || !['lastBackup', 'lastBackupAt', 'autoBackupDay'].includes(x.id));
   }
   return JSON.stringify(data);
 }
@@ -1459,6 +1407,7 @@ async function backup() {
   toast('Se pregătește backup-ul…');
   download(`backup-cabinet-${today()}.json`, await backupJson(), 'application/json');
   await setSetting('lastBackup', today());
+  await setSetting('lastBackupAt', Date.now());
   rerender();
 }
 
@@ -1469,6 +1418,7 @@ async function autoBackup() {
     const f = await window.desktop.backup(await backupJson());
     await setSetting('autoBackupDay', today());
     await setSetting('lastBackup', today());
+    await setSetting('lastBackupAt', Date.now());
     await setSetting('autoBackupFile', f);
     rerender();
   } catch (err) { console.warn('Copia automată nu a reușit:', err); }
@@ -1487,6 +1437,7 @@ async function restore(file) {
     }
   }
   for (const s of STORES) if (s !== 'files') S[s] = await DB.all(s);
+  await setSetting('lastBackupAt', Date.now());
   applyTheme();
   toast('Backup restaurat.');
   rerender();

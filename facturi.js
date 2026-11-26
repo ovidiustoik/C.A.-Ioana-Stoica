@@ -126,22 +126,25 @@ async function importaFacturi(fisiere) {
 }
 
 /* ---------- emiterea facturii ---------- */
+// Seria implicită a cabinetului și primul număr emis din aplicație (factura 0001 a fost emisă înainte)
+const SERIE_IMPLICITA = 'AVIS', PRIMUL_NUMAR = 2;
 function urmatorulNumar(serie) {
   const nr = S.facturi.filter(f => f.tip === 'emisa' && (f.serie || '') === serie).map(f => parseInt(String(f.nr || '').replace(/\D/g, ''), 10) || 0);
-  return String((nr.length ? Math.max(...nr) : 0) + 1);
+  const start = serie === SERIE_IMPLICITA ? Number(setting('facturaStart', PRIMUL_NUMAR)) || PRIMUL_NUMAR : 1;
+  return String(Math.max(start, (nr.length ? Math.max(...nr) : 0) + 1)).padStart(4, '0');
 }
 
 function facturaForm(f = {}) {
   const cab = dateCabinet();
-  const serie = f.serie ?? setting('facturaSerie', '');
+  const serie = f.serie ?? setting('facturaSerie', SERIE_IMPLICITA);
   const linie = f.linii?.[0] || {};
   openForm({
     title: f.id ? `Factura ${f.numar}` : 'Factură nouă',
-    intro: 'Completați factura. Din ea rezultă fișierul XML pentru SPV (e-Factura) și varianta de tipărit, de semnat electronic. Verificați întotdeauna fișierul cu validatorul ANAF înainte de încărcare.',
+    intro: 'Cabinet neplătitor de TVA. Din factură rezultă fișierul XML pentru SPV (e-Factura) și varianta de tipărit, de semnat electronic. Verificați fișierul cu validatorul ANAF înainte de încărcare. Termenul de transmitere: 5 zile lucrătoare de la emitere.',
     values: {
       tip: f.tip || 'emisa', serie, nr: f.nr || urmatorulNumar(serie), data: f.data || today(), scadenta: f.scadenta || '',
       pNume: f.partener?.nume || '', pCif: f.partener?.cif || '', pAdresa: f.partener?.adresa || '', pOras: f.partener?.oras || '', pJudet: f.partener?.judet || 'AG',
-      den: linie.den || 'Onorariu asistență juridică', cant: linie.cant || 1, pret: linie.pret ?? '', tvaRegim: f.tvaRegim || setting('tvaRegim', 'O'), cota: f.cota ?? 21,
+      den: linie.den || 'Onorariu asistență juridică', cant: linie.cant || 1, pret: linie.pret ?? '', tvaRegim: 'O',
       plata: f.plata || 'transfer', clientId: f.clientId || '', caseId: f.caseId || '', obs: f.obs || '', stare: f.stare || 'ciorna', idSpv: f.idSpv || '',
     },
     fields: [
@@ -158,9 +161,7 @@ function facturaForm(f = {}) {
       { name: 'pAdresa', label: 'Adresa (strada, numărul)', required: true },
       { name: 'den', label: 'Serviciul facturat', wide: true, required: true },
       { name: 'cant', label: 'Cantitate', type: 'number', min: 0 },
-      { name: 'pret', label: 'Preț unitar fără TVA (lei)', type: 'number', min: 0, required: true },
-      { name: 'tvaRegim', label: 'TVA', type: 'select', options: [['O', 'Neplătitor de TVA (categoria O)'], ['S', 'Plătitor de TVA – cota standard']] },
-      { name: 'cota', label: 'Cota TVA (%) – doar pentru plătitor', type: 'number', min: 0 },
+      { name: 'pret', label: 'Preț unitar (lei)', type: 'number', min: 0, required: true },
       { name: 'plata', label: 'Modalitatea de plată', type: 'select', options: Object.entries(PLATA_COD).map(([k, v]) => [k, v[1]]) },
       { name: 'clientId', label: 'Client din aplicație', type: 'select', options: [['', '—'], ...S.clients.map(c => [c.id, c.name])] },
       { name: 'caseId', label: 'Dosar', type: 'select', options: [['', '—'], ...S.cases.map(c => [c.id, c.number || c.object || 'dosar'])] },
@@ -169,15 +170,14 @@ function facturaForm(f = {}) {
     ],
     onSave: async v => {
       const cant = Number(v.cant) || 1, pret = Number(v.pret) || 0, faraTva = Math.round(cant * pret * 100) / 100;
-      const cota = v.tvaRegim === 'S' ? Number(v.cota) || 0 : 0, tva = Math.round(faraTva * cota) / 100;
+      const cota = 0, tva = 0;
       const rec = {
         ...f, tip: v.tip, stare: v.stare, serie: v.serie, nr: v.nr, numar: [v.serie, v.nr].filter(Boolean).join(' '), data: v.data, scadenta: v.scadenta, moneda: 'RON',
         partener: { nume: v.pNume, cif: v.pCif, adresa: v.pAdresa, oras: v.pOras, judet: v.pJudet },
-        linii: [{ den: v.den, cant, pret, valoare: faraTva }], tvaRegim: v.tvaRegim, cota, faraTva, tva, total: faraTva + tva,
+        linii: [{ den: v.den, cant, pret, valoare: faraTva }], tvaRegim: 'O', cota, faraTva, tva, total: faraTva + tva,
         descriere: v.den, plata: v.plata, clientId: v.clientId, caseId: v.caseId, idSpv: v.idSpv, obs: v.obs,
       };
       if (v.serie) await setSetting('facturaSerie', v.serie);
-      await setSetting('tvaRegim', v.tvaRegim);
       if (rec.tip === 'emisa') rec.xml = facturaXml(rec, cab);
       await save('facturi', rec);
       await sincronizeazaRegistru(rec);
@@ -244,24 +244,45 @@ async function sincronizeazaRegistru(f) {
     if (leg) { await remove('ledger', leg.id); delete f.ledgerId; await save('facturi', f); }
     return;
   }
+  const mod = f.modalitateAchitare || (f.plata === 'numerar' ? 'numerar' : 'banca');
   const rand = {
     ...(leg || {}), type: f.tip === 'emisa' ? 'incasare' : 'plata', date: f.dataAchitare || f.data, amount: Math.abs(f.total),
-    docNo: `Factura ${f.numar}`, description: `${f.tip === 'emisa' ? 'Încasare' : 'Plată'} factura ${f.numar} – ${f.partener?.nume || ''}`.trim(),
-    method: (PLATA_COD[f.plata] || PLATA_COD.transfer)[1] === 'Numerar' ? 'Numerar' : 'Bancă', clientId: f.clientId || '', caseId: f.caseId || '', facturaId: f.id,
+    modalitate: mod, method: mod === 'numerar' ? 'Numerar' : 'Bancă', docFel: 'Factură', docNo: f.numar,
+    description: `${f.tip === 'emisa' ? 'Încasare' : 'Plată'} factura ${f.numar} – ${f.partener?.nume || ''}`.trim(),
+    clientId: f.clientId || '', caseId: f.caseId || '', facturaId: f.id,
   };
+  if (rand.type === 'plata') rand.deductibil = leg?.deductibil || 'da';
   const s = await save('ledger', rand);
   if (f.ledgerId !== s.id) { f.ledgerId = s.id; await save('facturi', f); }
 }
 
+// „Încasată?” / „Plătită?”: se alege data și modalitatea, apoi factura intră în registrul-jurnal
 async function marcheazaAchitata(id) {
   const f = byId('facturi', id);
   if (!f) return;
-  f.achitata = !f.achitata;
-  f.dataAchitare = f.achitata ? today() : '';
-  await save('facturi', f);
-  await sincronizeazaRegistru(f);
-  toast(f.achitata ? `Trecută în registru ca ${f.tip === 'emisa' ? 'încasare' : 'plată'}.` : 'Scoasă din registru.');
-  rerender();
+  if (f.achitata) {
+    if (!confirm(`Scoateți ${f.tip === 'emisa' ? 'încasarea' : 'plata'} facturii ${f.numar} din registrul-jurnal?`)) return;
+    f.achitata = false; f.dataAchitare = '';
+    await save('facturi', f);
+    await sincronizeazaRegistru(f);
+    toast('Scoasă din registru.');
+    return rerender();
+  }
+  openForm({
+    title: `${f.tip === 'emisa' ? 'Încasare' : 'Plată'} factura ${f.numar}`,
+    intro: `Se adaugă în registrul-jurnal ${f.tip === 'emisa' ? 'o încasare' : 'o plată'} de ${money(Math.abs(f.total))}.`,
+    values: { data: today(), modalitate: f.plata === 'numerar' ? 'numerar' : 'banca' },
+    fields: [
+      { name: 'data', label: f.tip === 'emisa' ? 'Data încasării' : 'Data plății', type: 'date', required: true },
+      { name: 'modalitate', label: 'Numerar sau bancă', type: 'select', options: [['banca', 'Bancă'], ['numerar', 'Numerar']] },
+    ],
+    submit: 'Trece în registru',
+    onSave: async v => {
+      Object.assign(f, { achitata: true, dataAchitare: v.data, modalitateAchitare: v.modalitate });
+      await save('facturi', f);
+      await sincronizeazaRegistru(f);
+    },
+  });
 }
 
 /* ---------- pagina ---------- */
@@ -296,7 +317,7 @@ function viewFacturi() {
       ${lista.map(f => `<tr><td class="nowrap">${fmtDate(f.data, { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
         <td><a href="#" data-act="editFactura" data-id="${f.id}"><b>${h(f.numar)}</b></a><br><span class="muted small">${f.tip === 'emisa' ? 'emisă' : 'primită'}${f.storno ? ' · storno' : ''}${f.idSpv ? ' · SPV ' + h(f.idSpv) : ''}</span></td>
         <td>${h(f.partener?.nume || '')}<br><span class="muted small">${h(f.partener?.cif || '')}${f.descriere ? ' · ' + h(f.descriere.slice(0, 60)) : ''}</span></td>
-        <td><span class="pill ${(FACT_STARI[f.stare] || FACT_STARI.ciorna)[1]}">${(FACT_STARI[f.stare] || FACT_STARI.ciorna)[0]}</span></td>
+        <td><span class="pill ${(FACT_STARI[f.stare] || FACT_STARI.ciorna)[1]}">${(FACT_STARI[f.stare] || FACT_STARI.ciorna)[0]}</span>${f.tip === 'emisa' && ['ciorna', 'semnata'].includes(f.stare || 'ciorna') && f.data ? (() => { const t = adaugaZileLucratoare(f.data, 5), z = diffDays(today(), t); return `<br><span class="small ${z < 0 ? 'red' : 'muted'}">de trimis până la ${fmtDate(t, { day: 'numeric', month: 'short' })}${z < 0 ? ' – termen depășit' : ''}</span>`; })() : ''}</td>
         <td class="num">${money(f.total)}${f.tva ? `<br><span class="muted small">TVA ${money(f.tva)}</span>` : ''}</td>
         <td><button class="btn sm ${f.achitata ? '' : 'ghost'}" data-act="achitaFactura" data-id="${f.id}" title="Trece factura în registrul de încasări și plăți">${f.achitata ? '✓ ' + fmtShort(f.dataAchitare || f.data) : (f.tip === 'emisa' ? 'Încasată?' : 'Plătită?')}</button></td>
         <td class="nowrap"><button class="btn sm ghost" data-act="tiparesteFactura" data-id="${f.id}" title="Tipărire / PDF">PDF</button>${f.xml ? `<button class="btn sm ghost" data-act="xmlFactura" data-id="${f.id}" title="Descarcă fișierul XML e-Factura">XML</button>` : ''}</td></tr>`).join('')}

@@ -1,3 +1,15 @@
+/* Fonturile site-ului www.avocatioanastoica.ro (Montserrat, Source Sans 3 – SIL Open Font License) */
+@font-face { font-family: 'Montserrat'; font-weight: 500; font-display: swap; src: url(fonturi/montserrat-latin-500-normal.woff2) format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Montserrat'; font-weight: 500; font-display: swap; src: url(fonturi/montserrat-latin-ext-500-normal.woff2) format('woff2'); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: 'Montserrat'; font-weight: 600; font-display: swap; src: url(fonturi/montserrat-latin-600-normal.woff2) format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Montserrat'; font-weight: 600; font-display: swap; src: url(fonturi/montserrat-latin-ext-600-normal.woff2) format('woff2'); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: 'Montserrat'; font-weight: 700; font-display: swap; src: url(fonturi/montserrat-latin-700-normal.woff2) format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Montserrat'; font-weight: 700; font-display: swap; src: url(fonturi/montserrat-latin-ext-700-normal.woff2) format('woff2'); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: 'Source Sans'; font-weight: 400; font-display: swap; src: url(fonturi/source-sans-3-latin-400-normal.woff2) format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Source Sans'; font-weight: 400; font-display: swap; src: url(fonturi/source-sans-3-latin-ext-400-normal.woff2) format('woff2'); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: 'Source Sans'; font-weight: 600; font-display: swap; src: url(fonturi/source-sans-3-latin-600-normal.woff2) format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Source Sans'; font-weight: 600; font-display: swap; src: url(fonturi/source-sans-3-latin-ext-600-normal.woff2) format('woff2'); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+
 :root {
   --bg: #f5f3ee;
   --surface: #ffffff;
@@ -444,3 +456,50 @@ pre.minuta { white-space: pre-wrap; font: inherit; font-size: .88rem; background
 .dc-rand b { font-weight: 600; overflow-wrap: anywhere; }
 @media (max-width: 640px) { .dc-rand { grid-template-columns: minmax(0, 1fr) auto; } .dc-rand > span:first-child { grid-column: 1 / -1; } }
 @media (max-width: 560px) { .stat b { font-size: 1.15rem; overflow-wrap: anywhere; } }
+
+/* ================================================================
+   Tema în tonul site-ului www.avocatioanastoica.ro: ivoriu, cerneală, roșu cardinal,
+   verde-turcoaz; titluri Montserrat, text Source Sans; meniul lateral ca benzile întunecate ale site-ului
+   ================================================================ */
+:root {
+  --bg: #f4f4f2; --surface: #ffffff; --surface-2: #f8f7f4; --ink: #1e1f22; --muted: #6b6c70; --line: #e1e0dc;
+  --primary: #b3182f; --primary-ink: #ffffff; --primary-soft: #f7e6e9; --accent: #2b6a62;
+  --u3: #2b6a62; --ok: #2b6a62; --ok-soft: #eaf4f2; --shadow: none; --radius: 3px;
+  --noapte: #1e1f22; --titlu: 'Montserrat', 'Segoe UI', system-ui, sans-serif; --text-font: 'Source Sans', 'Segoe UI', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #151618; --surface: #1d1e21; --surface-2: #24262a; --ink: #ece9e3; --muted: #a4a29c; --line: #34363b;
+    --primary: #e0566a; --primary-ink: #1a0b0e; --primary-soft: #3a1e23; --accent: #6fc0b4; --u3: #6fc0b4; --ok: #6fc0b4; --ok-soft: #1a2e2b; --noapte: #0f1011; }
+}
+:root[data-theme="dark"] { --bg: #151618; --surface: #1d1e21; --surface-2: #24262a; --ink: #ece9e3; --muted: #a4a29c; --line: #34363b;
+  --primary: #e0566a; --primary-ink: #1a0b0e; --primary-soft: #3a1e23; --accent: #6fc0b4; --u3: #6fc0b4; --ok: #6fc0b4; --ok-soft: #1a2e2b; --noapte: #0f1011; }
+body { font-family: var(--text-font); font-size: 15.5px; }
+h1, h2, h3, .topbar h1, .calc-result, .stat b { font-family: var(--titlu); letter-spacing: -.01em; }
+h2 { font-weight: 600; }
+.btn { font-family: var(--titlu); font-weight: 600; letter-spacing: .02em; border-radius: var(--radius); }
+.btn.primary:hover { filter: none; background: #8e1226; border-color: #8e1226; }
+.card, .stat, .callout, .field input, .field select, .field textarea, .search, .toolbar select, .toolbar input, .quick input, .quick select, pre.minuta { border-radius: var(--radius); }
+.card, .stat { box-shadow: none; }
+.tabs a { font-family: var(--titlu); font-size: .82rem; letter-spacing: .06em; text-transform: uppercase; }
+.tabs a.active { color: var(--primary); border-color: var(--primary); }
+th { font-family: var(--titlu); }
+/* Meniul lateral: bandă întunecată, ca subsolul site-ului */
+.sidebar { background: var(--noapte); border-right: 0; color: #e9e6df; }
+.sidebar .brand strong { color: #a68a55; font-family: var(--titlu); letter-spacing: .16em; font-size: .68rem; }
+.sidebar .brand span { color: #fff; font-family: var(--titlu); font-weight: 600; }
+.sidebar nav a { color: #d8d4cb; border-radius: var(--radius); font-family: var(--titlu); font-weight: 500; font-size: .84rem; letter-spacing: .02em; }
+.sidebar nav a:hover { background: rgba(255,255,255,.06); color: #fff; }
+.sidebar nav a.active { background: rgba(179,24,47,.18); color: #fff; box-shadow: inset 3px 0 0 var(--primary); }
+.sidebar nav a .count { background: var(--primary); color: #fff; }
+.sidebar nav .sep { background: rgba(255,255,255,.12); }
+.sidebar .sidebar-foot { color: #8f8b83; }
+.brand-sigla { width: 38px; height: 38px; object-fit: contain; }
+.topbar { background: color-mix(in srgb, var(--surface) 92%, transparent); }
+.topbar h1 { font-weight: 600; }
+.sidebar .side-mail a { color: #fff; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); border-radius: var(--radius); font-family: var(--titlu); font-weight: 600; }
+.sidebar .side-mail a:hover { background: rgba(255,255,255,.14); }
+table.registru th { text-align: center; vertical-align: bottom; }
+table.registru tr.total-luna td { font-weight: 700; background: var(--surface-2); border-bottom: 2px solid var(--line); }
+table.registru tr.storno td { color: var(--u1); }
+.backup-banner { margin-bottom: 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.backup-banner .btn { margin-left: auto; }
