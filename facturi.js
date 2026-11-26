@@ -344,7 +344,7 @@ const DATE_CABINET_IMPLICIT = {
   barou: 'Baroul Argeș',
   decizie: 'nr. 66 din 25.10.2022 a Consiliului Baroului Argeș',
   cif: '29605442',
-  sediu: 'Albeștii de Argeș, județ Argeș',
+  sediu: 'comuna Albeștii de Argeș, sat Doblea nr. 12, județ Argeș',
   localitate: 'Albeștii de Argeș',
   judet: 'AG',
   telefon: '0775 137 882',
@@ -356,10 +356,10 @@ const DATE_CABINET_IMPLICIT = {
   program: 'Luni–Vineri, 08:30–17:30',
   barouLink: 'https://barouarges.ro/avocat/ioana-stoica',
 };
+// Datele afișate în Geamantan, cu „Copiază”
 const CAMPURI_CABINET = [
-  ['denumire', 'Denumire'], ['denumireOficiala', 'Denumire oficială (contracte, facturi)'], ['avocat', 'Avocat'], ['barou', 'Barou'],
-  ['decizie', 'Decizia de înființare'], ['cif', 'CIF'], ['sediu', 'Sediu'], ['telefon', 'Telefon'], ['email', 'E-mail'], ['site', 'Site'],
-  ['iban', 'IBAN'], ['banca', 'Banca'], ['beneficiar', 'Beneficiar plăți'], ['program', 'Program'], ['barouLink', 'Pagina din tabloul Baroului'],
+  ['denumireOficiala', 'Denumire oficială (contracte, facturi)'], ['decizie', 'Decizia de înființare'], ['cif', 'CIF'], ['sediu', 'Sediu'],
+  ['telefon', 'Telefon'], ['email', 'E-mail'], ['site', 'Site'], ['iban', 'IBAN'],
 ];
 const dateCabinet = () => ({ ...DATE_CABINET_IMPLICIT, ...(setting('cabinet', {}) || {}) });
 
@@ -376,7 +376,7 @@ function cabinetForm() {
   openForm({
     title: 'Datele cabinetului',
     values: c,
-    fields: [...CAMPURI_CABINET.map(([k, l]) => ({ name: k, label: l, wide: ['denumire', 'denumireOficiala', 'decizie', 'sediu', 'banca', 'barouLink'].includes(k) })),
+    fields: [...CAMPURI_CABINET.map(([k, l]) => ({ name: k, label: l, wide: ['denumireOficiala', 'decizie', 'sediu'].includes(k) })),
       { name: 'localitate', label: 'Localitatea (pentru e-Factura)' }, { name: 'judet', label: 'Județ', type: 'select', options: JUDETE }],
     onSave: v => setSetting('cabinet', v),
   });
