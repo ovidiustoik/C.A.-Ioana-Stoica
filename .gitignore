@@ -7,5 +7,5 @@ cabinet-*.json
 node_modules/
 dist/
 
-# Datele de acces: se urcă pe GitHub doar după ce depozitul devine privat
+# Datele de acces nu se urcă niciodată pe GitHub (depozitul este public)
 secrete.js
