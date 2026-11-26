@@ -28,7 +28,7 @@ scripturi = [citeste(f) for f in ('taxa.js', 'competenta.js', 'grila.js', 'cauti
 scripturi.append(citeste('calculator/calc.js').replace('__VERSIUNE__', versiune))
 pagina = (citeste('calculator/sablon.html')
           .replace('{{ICON}}', icon)
-          .replace('{{CSS}}', citeste('style.css'))
+          .replace('{{CSS}}', citeste('style.css').replace('url(fonturi/', 'url(../fonturi/'))
           .replace('{{SCRIPTS}}', '\n'.join(script(s) for s in scripturi)))
 for nume in ('index.html', 'Taxa-timbru-competenta.html'):
     (CALC / nume).write_text(pagina, encoding='utf-8')
