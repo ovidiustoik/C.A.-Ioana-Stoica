@@ -1226,6 +1226,7 @@ const ACT = {
   newFactura: () => facturaForm(),
   editFactura: d => facturaForm(byId('facturi', d.id)),
   achitaFactura: d => marcheazaAchitata(d.id),
+  stergeFactura: d => stergeFactura(d.id),
   tiparesteFactura: d => facturaTiparire(byId('facturi', d.id)),
   xmlFactura: d => { const f = byId('facturi', d.id); download(`factura-${(f.numar || 'fara-numar').replace(/[^\w-]+/g, '_')}.xml`, f.xml, 'application/xml'); },
   copiaza: async d => { try { await navigator.clipboard.writeText(d.text); toast('Copiat: ' + (d.text.length > 40 ? d.text.slice(0, 40) + '…' : d.text)); } catch { toast('Selectați textul și copiați-l cu Ctrl+C.'); } },
