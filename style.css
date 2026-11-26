@@ -438,3 +438,9 @@ pre.minuta { white-space: pre-wrap; font: inherit; font-size: .88rem; background
 .calc-tabs a { padding: 8px 14px; border-radius: 99px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; font-weight: 600; font-size: .9rem; }
 .calc-tabs a.active { background: var(--primary); border-color: var(--primary); color: #fff; }
 .avertisment { margin-bottom: 14px; }
+.date-cabinet { display: grid; gap: 0; }
+.dc-rand { display: grid; grid-template-columns: minmax(140px, 220px) minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--line); }
+.dc-rand:last-child { border-bottom: 0; }
+.dc-rand b { font-weight: 600; overflow-wrap: anywhere; }
+@media (max-width: 640px) { .dc-rand { grid-template-columns: minmax(0, 1fr) auto; } .dc-rand > span:first-child { grid-column: 1 / -1; } }
+@media (max-width: 560px) { .stat b { font-size: 1.15rem; overflow-wrap: anywhere; } }

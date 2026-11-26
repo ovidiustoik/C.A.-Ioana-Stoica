@@ -1,8 +1,8 @@
 'use strict';
 /* Stocare locală (IndexedDB). Datele nu părăsesc dispozitivul. */
 const DB_NAME = 'cabinet-stoica';
-const DB_VERSION = 1;
-const STORES = ['tasks', 'cases', 'clients', 'events', 'docs', 'files', 'links', 'anaf', 'ledger', 'settings'];
+const DB_VERSION = 2;
+const STORES = ['tasks', 'cases', 'clients', 'events', 'docs', 'files', 'links', 'anaf', 'ledger', 'settings', 'facturi'];
 
 let _db = null;
 

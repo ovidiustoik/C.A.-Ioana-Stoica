@@ -89,6 +89,7 @@ const ICONS = {
   taxa: '<path d="M4 4h16v6a2 2 0 0 0 0 4v6H4v-6a2 2 0 0 0 0-4z"/><path d="M9 9h6M9 15h6"/>',
   cautiune: '<path d="M12 3 4 6v6c0 4.5 3.4 8 8 9 4.6-1 8-4.5 8-9V6z"/><path d="M12 8v8M9.5 10.5h4a1.5 1.5 0 0 1 0 3h-3a1.5 1.5 0 0 0 0 3h4"/>',
   apj: '<circle cx="12" cy="6" r="2.5"/><path d="M12 9v12M5 21h14M6 12l-3 5h6zM18 12l-3 5h6zM6 12h12"/>',
+  instrumente: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/>',
   linkuri: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
   semnatura: '<path d="M4 20h16"/><path d="M15 4l5 5-9 9H6v-5z"/>',
   mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
@@ -113,10 +114,7 @@ const NAV = [
   ['geamantan', 'Geamantan personal'],
   ['semnatura', 'Semnătură electronică'],
   ['contabilitate', 'Contabilitate & ANAF'],
-  ['termene', 'Calcul termene'],
-  ['taxa', 'Taxă timbru & competență'],
-  ['cautiune', 'Calcul cauțiune'],
-  ['apj', 'Ajutor public judiciar'],
+  ['instrumente', 'Instrumente'],
   ['linkuri', 'Linkuri utile'],
   null,
   ['setari', 'Setări & backup'],
@@ -131,6 +129,8 @@ const UI = {
   homeCal: today().slice(0, 7),
   calSel: today(),
   ledgerYear: new Date().getFullYear(),
+  factAn: new Date().getFullYear(),
+  factTip: '',
   calc: { start: today(), n: 15, unit: 'zile', res: null },
 };
 
@@ -972,15 +972,21 @@ function viewSuitcase() {
   const cats = PERSONAL_CATS.filter(c => docs.some(d => d.category === c));
   const other = docs.filter(d => !PERSONAL_CATS.includes(d.category));
   return `
-  <div class="toolbar"><span class="muted small">Acte personale și profesionale: CI, legitimație, asigurare RCP, acte fiscale, contracte etc. Setați data expirării pentru a primi alerte.</span>
+  ${cabinetHtml()}
+  <div class="toolbar" style="margin-top:14px"><span class="muted small">Acte personale și profesionale: CI, legitimație, asigurare RCP, acte fiscale, contracte etc. Setați data expirării pentru a primi alerte.</span>
     <span class="spacer"></span><button class="btn primary" data-act="upload" data-scope="personal">＋ Adaugă acte</button></div>
   ${docs.length ? `<div class="grid-cards">${cats.map(cat => `<div class="card" style="margin:0"><div class="card-head"><h2>${h(cat)}</h2></div>${docs.filter(d => d.category === cat).map(d => docRow(d)).join('')}</div>`).join('')}
     ${other.length ? `<div class="card" style="margin:0"><h2>Altele</h2>${other.map(d => docRow(d)).join('')}</div>` : ''}</div>` : `<div class="card">${empty('Geamantanul este gol. Adăugați primele acte.')}</div>`}`;
 }
 
 function viewAccounting(tab) {
-  const tabs = `<div class="tabs"><a href="#/contabilitate" class="${tab !== 'registru' ? 'active' : ''}">ANAF – Spațiul Privat Virtual</a><a href="#/contabilitate/registru" class="${tab === 'registru' ? 'active' : ''}">Registru încasări și plăți</a></div>`;
-  return tabs + (tab === 'registru' ? viewLedger() : viewAnaf());
+  tab = ['registru', 'anaf'].includes(tab) ? tab : 'facturi';
+  const spv = setting('spvUrl', 'https://www.anaf.ro');
+  const sus = `<div class="grid-2" style="margin-bottom:14px">${accesHtml()}
+    <div class="card"><h2>ANAF – Spațiul Privat Virtual</h2><div class="actions" style="margin-top:8px"><a class="btn primary" href="${h(spv)}" target="_blank" rel="noopener">Deschide SPV ↗</a><a class="btn" href="https://www.ghiseul.ro" target="_blank" rel="noopener">Ghișeul.ro ↗</a></div>
+    <p class="small muted" style="margin:8px 0 0">Facturile descărcate din SPV se preiau în fila „Facturi e-Factura”.</p></div></div>`;
+  const tabs = `<div class="tabs"><a href="#/contabilitate" class="${tab === 'facturi' ? 'active' : ''}">Facturi e-Factura (SPV)</a><a href="#/contabilitate/registru" class="${tab === 'registru' ? 'active' : ''}">Registru încasări și plăți</a><a href="#/contabilitate/anaf" class="${tab === 'anaf' ? 'active' : ''}">Obligații și notificări ANAF</a></div>`;
+  return sus + tabs + (tab === 'registru' ? viewLedger() : tab === 'anaf' ? viewAnaf() : viewFacturi());
 }
 
 function viewAnaf() {
@@ -1007,8 +1013,8 @@ function viewAnaf() {
       </div>
       <div class="card">
         <div class="callout warn">
-          <p><b>De ce nu se preiau automat datele din SPV?</b></p>
-          <p>Accesul în SPV se face cu datele personale de autentificare (utilizator și parolă sau certificat digital), iar, din câte știu, ANAF nu oferă o interfață publică prin care o aplicație să citească automat mesajele și situația fiscală a unei persoane fizice. O aplicație care ar stoca parola SPV ar crea și un risc de securitate.</p>
+          <p><b>Ce se preia din SPV și ce nu</b></p>
+          <p>Facturile e-Factura descărcate din SPV (arhive .zip sau fișiere .xml) se preiau automat în fila „Facturi e-Factura”. Mesajele și situația obligațiilor fiscale nu au o interfață publică pe care aplicația să o poată citi; ele se trec aici manual.</p>
           <p><b>Fluxul recomandat:</b> deschideți SPV → verificați mesajele primite și situația obligațiilor → pentru fiecare datorie sau notificare apăsați „Adaugă din SPV”. Aplicația o pune automat în calendar și în TO DO, iar când o marcați „Plătit”, se bifează și sarcina.</p>
         </div>
       </div>
@@ -1158,6 +1164,18 @@ function viewSearch(q) {
     ${sec('Acte', docs, a => a.map(d => docRow(d, true)).join(''))}`;
 }
 
+/* ================= Instrumente: calculatoarele într-o singură pagină ================= */
+const INSTRUMENTE = [
+  ['taxa', 'Taxă timbru & competență', () => viewTaxa()],
+  ['cautiune', 'Calcul cauțiune', () => viewCautiune()],
+  ['apj', 'Ajutor public judiciar', () => viewApj()],
+  ['termene', 'Calcul termene', () => viewTermCalc()],
+];
+function viewInstrumente(tab) {
+  const t = INSTRUMENTE.find(i => i[0] === tab) || INSTRUMENTE[0];
+  return `<div class="tabs">${INSTRUMENTE.map(i => `<a href="#/instrumente/${i[0]}" class="${i === t ? 'active' : ''}">${i[1]}</a>`).join('')}</div>${t[2]()}`;
+}
+
 /* ================= Router ================= */
 const ROUTES = {
   acasa: [viewHome, 'Acasă'],
@@ -1174,6 +1192,7 @@ const ROUTES = {
   taxa: [viewTaxa, 'Taxă de timbru & competență'],
   cautiune: [viewCautiune, 'Calcul cauțiune'],
   apj: [viewApj, 'Ajutor public judiciar'],
+  instrumente: [viewInstrumente, 'Instrumente'],
   linkuri: [viewLinks, 'Linkuri utile'],
   setari: [viewSettings, 'Setări & backup'],
   cautare: [viewSearch, 'Căutare'],
@@ -1187,7 +1206,7 @@ function route() {
   $('#view').innerHTML = fn(param);
   $('#pageTitle').textContent = key === 'dosar' ? (byId('cases', param)?.number || 'Dosar') : title;
   document.title = `${$('#pageTitle').textContent} · Cabinet Stoica`;
-  renderNav(key === 'dosar' ? 'dosare' : key);
+  renderNav(key === 'dosar' ? 'dosare' : INSTRUMENTE.some(i => i[0] === key) ? 'instrumente' : key);
   afterRender();
 }
 
@@ -1248,6 +1267,16 @@ const ACT = {
   portalTest: () => portalTest(),
   taxaAdauga: () => taxaAdauga(),
   taxaGoleste: () => { TX.cos = []; rerender(); },
+  newFactura: () => facturaForm(),
+  editFactura: d => facturaForm(byId('facturi', d.id)),
+  achitaFactura: d => marcheazaAchitata(d.id),
+  tiparesteFactura: d => facturaTiparire(byId('facturi', d.id)),
+  xmlFactura: d => { const f = byId('facturi', d.id); download(`factura-${(f.numar || 'fara-numar').replace(/[^\w-]+/g, '_')}.xml`, f.xml, 'application/xml'); },
+  copiaza: async d => { try { await navigator.clipboard.writeText(d.text); toast('Copiat: ' + (d.text.length > 40 ? d.text.slice(0, 40) + '…' : d.text)); } catch { toast('Selectați textul și copiați-l cu Ctrl+C.'); } },
+  copiazaCabinet: async () => { try { await navigator.clipboard.writeText(textCabinet()); toast('Datele cabinetului au fost copiate.'); } catch { toast('Copierea nu este permisă de browser.'); } },
+  editCabinet: () => cabinetForm(),
+  editAcces: () => accesForm(),
+  arataParola: () => { UI.arataParola = !UI.arataParola; rerender(); },
   grilaAdauga: () => grilaAdauga(),
   cautCopiaza: async () => { try { await navigator.clipboard.writeText(cautText(cautCalcul())); toast('Text copiat.'); } catch { toast('Selectați textul și copiați-l cu Ctrl+C.'); } },
   apjAdauga: () => apjAdauga(),
@@ -1490,6 +1519,10 @@ document.addEventListener('change', async e => {
   } else if (el.dataset.filter) {
     setPath(el.dataset.filter, el.value);
     rerender();
+  } else if (el.hasAttribute('data-xml-import') && el.files.length) {
+    const files = [...el.files];
+    el.value = '';
+    await importaFacturi(files);
   } else if (el.dataset.sigImport && el.files[0]) {
     try {
       await setSetting(el.dataset.sigImport, await imageToSignature(el.files[0]));
