@@ -367,7 +367,8 @@ function textCabinet() {
 }
 
 /* ---------- semnare electronică (websign) ---------- */
-const acces = () => ({ ...(window.SECRETE || {}), ...(setting('acces', {}) || {}) });
+// Linkul, utilizatorul și parola se păstrează doar în aplicație, pe calculator (depozitul de cod este public).
+const acces = () => setting('acces', {}) || {};
 
 function accesHtml() {
   const a = acces();
@@ -385,7 +386,7 @@ function accesForm() {
   const a = acces();
   openForm({
     title: 'Date de acces websign',
-    intro: 'Datele se păstrează în aplicație, pe acest calculator.',
+    intro: 'Datele se păstrează doar în aplicație, pe acest calculator (și în copiile de siguranță locale) – nu ajung pe GitHub.',
     values: a,
     fields: [{ name: 'websignUrl', label: 'Linkul sesiunii de semnare', wide: true }, { name: 'websignEmail', label: 'Utilizator (e-mail)' }, { name: 'websignParola', label: 'Parola' }],
     onSave: v => setSetting('acces', v),

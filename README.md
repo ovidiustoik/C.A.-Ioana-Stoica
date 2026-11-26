@@ -79,5 +79,5 @@ Aceleași calculatoare (taxă de timbru & competență, cauțiune, ajutor public
 - `taxa.js`, `competenta.js`, `grila.js`: taxa de timbru, competența și grila notarială Curtea de Argeș 2026
 - `cautiune.js`, `apj.js`: calculul cauțiunii și verificarea ajutorului public judiciar
 - `facturi.js`: facturile e-Factura (preluare din SPV, emitere XML CIUS-RO și PDF, legătura cu registrul), datele cabinetului din Geamantan și datele de acces websign
-- `secrete.js`: datele de acces (nu se urcă pe GitHub cât timp depozitul e public)
+- datele de acces websign (link, utilizator, parolă) se introduc din aplicație și rămân doar pe calculator; depozitul fiind public, ele nu se scriu în cod
 - `calculator/`: aplicația separată (`calc.js`, `sablon.html`, `instalare.nsi` sunt sursele; restul se generează cu `tools/construieste-calculator.py`)
