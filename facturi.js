@@ -182,7 +182,8 @@ function facturaForm(f = {}) {
       await save('facturi', rec);
       await sincronizeazaRegistru(rec);
     },
-    onDelete: f.id ? async () => { if (f.ledgerId) await remove('ledger', f.ledgerId); await remove('facturi', f.id); } : null,
+    deleteLabel: 'Șterge factura',
+    onDelete: f.id ? async () => { if (!confirmaStergereSpv(f)) throw new Error('Anulat.'); await stergeDefinitiv(f); } : null,
   });
 }
 
@@ -285,6 +286,30 @@ async function marcheazaAchitata(id) {
   });
 }
 
+// Ștergerea unei facturi introduse din eroare: dispare și înregistrarea legată din registrul-jurnal.
+const inSpv = f => ['trimisa', 'validata', 'spv'].includes(f.stare);
+function confirmaStergereSpv(f) {
+  if (!inSpv(f)) return true;
+  return confirm(`Factura ${f.numar} apare ca ${f.stare === 'spv' ? 'preluată din SPV' : 'încărcată în SPV'}. Ștergerea din aplicație NU o retrage și din SPV. Pentru o factură deja transmisă, verificați cu contabilul cum se corectează (de exemplu, prin stornare). Ștergeți totuși din aplicație?`);
+}
+async function stergeDefinitiv(f) {
+  if (f.ledgerId) await remove('ledger', f.ledgerId);
+  await remove('facturi', f.id);
+}
+async function stergeFactura(id) {
+  const f = byId('facturi', id);
+  if (!f) return;
+  const detalii = [
+    f.achitata || f.ledgerId ? `${f.tip === 'emisa' ? 'Încasarea' : 'Plata'} din registrul-jurnal se șterge odată cu factura.` : '',
+    f.tip === 'emisa' && f.serie && f.nr && (parseInt(String(f.nr).replace(/\D/g, ''), 10) || 0) < Number(urmatorulNumar(f.serie)) - 1 ? `Nu este ultima factură din seria ${f.serie}: numărul ${f.nr} rămâne liber, iar următoarea factură primește tot numărul ${urmatorulNumar(f.serie)}.` : '',
+  ].filter(Boolean).join('\n');
+  if (!confirm(`Ștergeți factura ${f.numar}${f.partener?.nume ? ' – ' + f.partener.nume : ''} (${money(f.total)})?${detalii ? '\n\n' + detalii : ''}\n\nOperațiunea nu poate fi anulată.`)) return;
+  if (!confirmaStergereSpv(f)) return;
+  await stergeDefinitiv(f);
+  toast(`Factura ${f.numar} a fost ștearsă.`);
+  rerender();
+}
+
 /* ---------- pagina ---------- */
 function viewFacturi() {
   const y = String(UI.factAn || new Date().getFullYear());
@@ -320,7 +345,7 @@ function viewFacturi() {
         <td><span class="pill ${(FACT_STARI[f.stare] || FACT_STARI.ciorna)[1]}">${(FACT_STARI[f.stare] || FACT_STARI.ciorna)[0]}</span>${f.tip === 'emisa' && ['ciorna', 'semnata'].includes(f.stare || 'ciorna') && f.data ? (() => { const t = adaugaZileLucratoare(f.data, 5), z = diffDays(today(), t); return `<br><span class="small ${z < 0 ? 'red' : 'muted'}">de trimis până la ${fmtDate(t, { day: 'numeric', month: 'short' })}${z < 0 ? ' – termen depășit' : ''}</span>`; })() : ''}</td>
         <td class="num">${money(f.total)}${f.tva ? `<br><span class="muted small">TVA ${money(f.tva)}</span>` : ''}</td>
         <td><button class="btn sm ${f.achitata ? '' : 'ghost'}" data-act="achitaFactura" data-id="${f.id}" title="Trece factura în registrul de încasări și plăți">${f.achitata ? '✓ ' + fmtShort(f.dataAchitare || f.data) : (f.tip === 'emisa' ? 'Încasată?' : 'Plătită?')}</button></td>
-        <td class="nowrap"><button class="btn sm ghost" data-act="tiparesteFactura" data-id="${f.id}" title="Tipărire / PDF">PDF</button>${f.xml ? `<button class="btn sm ghost" data-act="xmlFactura" data-id="${f.id}" title="Descarcă fișierul XML e-Factura">XML</button>` : ''}</td></tr>`).join('')}
+        <td class="nowrap"><button class="btn sm ghost" data-act="tiparesteFactura" data-id="${f.id}" title="Tipărire / PDF">PDF</button>${f.xml ? `<button class="btn sm ghost" data-act="xmlFactura" data-id="${f.id}" title="Descarcă fișierul XML e-Factura">XML</button>` : ''}<button class="icon-btn" data-act="stergeFactura" data-id="${f.id}" title="Șterge factura (introdusă din eroare)" aria-label="Șterge factura ${h(f.numar)}">🗑</button></td></tr>`).join('')}
     </tbody><tfoot><tr><td colspan="4">Total ${y}${UI.factTip ? (UI.factTip === 'emisa' ? ' – emise' : ' – primite') : ''}</td><td class="num">${money(sum(lista))}</td><td colspan="2"></td></tr></tfoot></table>`
     : empty('Nicio factură în ' + y + '. Preluați facturile descărcate din SPV sau emiteți una nouă.')}
   </div>

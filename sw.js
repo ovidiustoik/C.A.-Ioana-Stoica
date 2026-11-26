@@ -1,5 +1,5 @@
 /* Funcționare offline: aplicația se încarcă și fără internet. */
-const CACHE = 'cabinet-stoica-v11';
+const CACHE = 'cabinet-stoica-v12';
 const ASSETS = ['./', 'index.html', 'style.css', 'local.js', 'db.js', 'app.js', 'sign.js', 'portal.js', 'taxa.js', 'competenta.js', 'grila.js', 'cautiune.js', 'apj.js', 'facturi.js', 'contabilitate.js', 'fonturi/montserrat-latin-600-normal.woff2', 'fonturi/source-sans-3-latin-400-normal.woff2', 'imagini/balanta-alba.png', 'vendor/pdf-lib.min.js', 'vendor/pdf.min.mjs', 'vendor/pdf.worker.min.mjs', 'icon.svg', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {
